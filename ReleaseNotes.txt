@@ -18,3 +18,9 @@ Release notes 3.0.2
 Release notes 3.0.3
 
 - core change[easy]
+
+Release notes 3.0.4
+
+- add on CN-7 by Aiwe K from Karbowanec developer
+- change contrib
+- added submodules
