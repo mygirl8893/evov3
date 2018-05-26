@@ -6,6 +6,8 @@ The Bytecoin Developer
 The Monero Developer
 The Sumo Developer
 The Kabowanec Developer
+The XDN Developer
+The Royalties Developer
 ==================Add On Developer================
 [ ] developers
 - Sora as Core Platform
