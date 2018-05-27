@@ -13,7 +13,7 @@ class ISerializer;
 
 class PaymentIdIndex {
 public:
-  PaymentIdIndex() = default;
+  PaymentIdIndex(bool enabled);
 
   bool add(const Transaction& transaction);
   bool remove(const Transaction& transaction);
@@ -28,11 +28,12 @@ public:
   }
 private:
   std::unordered_multimap<Crypto::Hash, Crypto::Hash> index;
+  bool enabled = false;
 };
 
 class TimestampBlocksIndex {
 public:
-  TimestampBlocksIndex() = default;
+  TimestampBlocksIndex(bool enabled);
 
   bool add(uint64_t timestamp, const Crypto::Hash& hash);
   bool remove(uint64_t timestamp, const Crypto::Hash& hash);
@@ -47,11 +48,12 @@ public:
   }
 private:
   std::multimap<uint64_t, Crypto::Hash> index;
+  bool enabled = false;
 };
 
 class TimestampTransactionsIndex {
 public:
-  TimestampTransactionsIndex() = default;
+  TimestampTransactionsIndex(bool enabled);
 
   bool add(uint64_t timestamp, const Crypto::Hash& hash);
   bool remove(uint64_t timestamp, const Crypto::Hash& hash);
@@ -66,11 +68,12 @@ public:
   }
 private:
   std::multimap<uint64_t, Crypto::Hash> index;
+  bool enabled = false;
 };
 
 class GeneratedTransactionsIndex {
 public:
-  GeneratedTransactionsIndex();
+  GeneratedTransactionsIndex(bool enabled);
 
   bool add(const Block& block);
   bool remove(const Block& block);
@@ -87,11 +90,12 @@ public:
 private:
   std::unordered_map<uint32_t, uint64_t> index;
   uint64_t lastGeneratedTxNumber;
+  bool enabled = false;
 };
 
 class OrphanBlocksIndex {
 public:
-  OrphanBlocksIndex() = default;
+  OrphanBlocksIndex(bool enabled);
 
   bool add(const Block& block);
   bool remove(const Block& block);
@@ -99,6 +103,7 @@ public:
   void clear();
 private:
   std::unordered_multimap<uint32_t, Crypto::Hash> index;
+  bool enabled = false;
 };
 
 }
