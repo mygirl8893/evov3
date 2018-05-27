@@ -4,6 +4,9 @@
 #include <cstdint>
 #include <ctime>
 
+#include "common/StringTools.h"
+#include "base/CryptoNoteBasicImpl.h"
+#include "base/CryptoNoteFormatUtils.h"
 #include "core/Currency.h"
 #include "CryptoNoteConfig.h"
 #include <log/LoggerRef.h>
@@ -93,7 +96,15 @@ namespace CryptoNote {
           assert(m_blockchain.back().bl.majorVersion == m_targetVersion - 1);
 
           if (m_blockchain.size() % (60 * 60 / m_currency.difficultyTarget()) == 0) {
-            logger(Logging::TRACE, Logging::BRIGHT_GREEN) << "###### UPGRADE is going to happen after height " << upgradeHeight() << "!";
+            auto interval = m_currency.difficultyTarget() * (upgradeHeight() - m_blockchain.size() + 2);
+            time_t upgradeTimestamp = time(nullptr) + static_cast<time_t>(interval);
+            struct tm* upgradeTime = localtime(&upgradeTimestamp);;
+            char upgradeTimeStr[40];
+            strftime(upgradeTimeStr, 40, "%H:%M:%S %Y.%m.%d", upgradeTime);
+
+            logger(Logging::TRACE, Logging::BRIGHT_GREEN) << "###### UPGRADE is going to happen after block index " << upgradeHeight() << " at about " <<
+              upgradeTimeStr << " (in " << Common::timeIntervalToString(interval) << ")! Current last block index " << (m_blockchain.size() - 1) <<
+              ", hash " << get_block_hash(m_blockchain.back().bl);
           }
         } else if (m_blockchain.size() == upgradeHeight() + 1) {
           assert(m_blockchain.back().bl.majorVersion == m_targetVersion - 1);
