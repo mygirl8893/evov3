@@ -79,7 +79,7 @@ bool Currency::init() {
   }
 
   if (isTestnet()) {
-    m_upgradeHeight = 0;
+    m_upgradeHeightv3 = 2;
     m_blocksFileName = "testnet_" + m_blocksFileName;
     m_blocksCacheFileName = "testnet_" + m_blocksCacheFileName;
     m_blockIndexesFileName = "testnet_" + m_blockIndexesFileName;
@@ -513,8 +513,8 @@ difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, s
     const int64_t T = static_cast<int64_t>(m_difficultyTarget);
     size_t N = m_difficultyWindow;
 	// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-	if (timestamps.size() < 4) {
-		return 1;
+	if (timestamps.size() < 10) {
+		return 1000;
 	}
 	// otherwise, use a smaller N if the start of the chain is less than N+1
 	else if (timestamps.size() < N + 1) {
@@ -552,9 +552,10 @@ difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, s
 	next_difficulty = static_cast<uint64_t>(nextDifficulty);
 
 	//// minimum limit
-	//if (!isTestnet() && next_difficulty < 100000) {
-		//next_difficulty = 100000;
-	//}
+	// in production set larger
+	if (!isTestnet() && next_difficulty < 1000) {
+		next_difficulty = 1000;
+	}
 
 	return next_difficulty;
 }
@@ -643,7 +644,8 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
   mempoolTxFromAltBlockLiveTime(parameters::CRYPTONOTE_MEMPOOL_TX_FROM_ALT_BLOCK_LIVETIME);
   numberOfPeriodsToForgetTxDeletedFromPool(parameters::CRYPTONOTE_NUMBER_OF_PERIODS_TO_FORGET_TX_DELETED_FROM_POOL);
 
-  upgradeHeight(parameters::UPGRADE_HEIGHT);
+  upgradeHeightv2(parameters::UPGRADE_HEIGHT_V2);
+  upgradeHeightv3(parameters::UPGRADE_HEIGHT_V3);
   upgradeVotingThreshold(parameters::UPGRADE_VOTING_THRESHOLD);
   upgradeVotingWindow(parameters::UPGRADE_VOTING_WINDOW);
   upgradeWindow(parameters::UPGRADE_WINDOW);

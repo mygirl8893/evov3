@@ -710,7 +710,7 @@ difficulty_type Blockchain::difficultyAtHeight(uint64_t height) {
 }
 
 uint8_t Blockchain::get_block_major_version_for_height(uint64_t height) const {
-  return height > m_upgradeDetectorV3.upgradeHeight() ? m_upgradeDetectorV3.targetVersion() : BLOCK_MAJOR_VERSION_3;
+  return height > m_upgradeDetectorV3.upgradeHeightv3() ? m_upgradeDetectorV3.targetVersion() : BLOCK_MAJOR_VERSION_3;
 }
 
 bool Blockchain::rollback_blockchain_switching(std::list<Block> &original_chain, size_t rollback_height) {

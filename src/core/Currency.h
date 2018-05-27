@@ -69,7 +69,8 @@ public:
   uint64_t mempoolTxFromAltBlockLiveTime() const { return m_mempoolTxFromAltBlockLiveTime; }
   uint64_t numberOfPeriodsToForgetTxDeletedFromPool() const { return m_numberOfPeriodsToForgetTxDeletedFromPool; }
 
-  uint64_t upgradeHeight() const { return m_upgradeHeight; }
+  uint64_t upgradeHeightv2() const { return m_upgradeHeightv2; }
+  uint64_t upgradeHeightv3() const { return m_upgradeHeightv3; }
   unsigned int upgradeVotingThreshold() const { return m_upgradeVotingThreshold; }
   size_t upgradeVotingWindow() const { return m_upgradeVotingWindow; }
   size_t upgradeWindow() const { return m_upgradeWindow; }
@@ -191,7 +192,8 @@ private:
   uint64_t m_mempoolTxFromAltBlockLiveTime;
   uint64_t m_numberOfPeriodsToForgetTxDeletedFromPool;
 
-  uint64_t m_upgradeHeight;
+  uint64_t m_upgradeHeightv2;
+  uint64_t m_upgradeHeightv3;
   unsigned int m_upgradeVotingThreshold;
   size_t m_upgradeVotingWindow;
   size_t m_upgradeWindow;
@@ -288,7 +290,8 @@ public:
   CurrencyBuilder& mempoolTxFromAltBlockLiveTime(uint64_t val) { m_currency.m_mempoolTxFromAltBlockLiveTime = val; return *this; }
   CurrencyBuilder& numberOfPeriodsToForgetTxDeletedFromPool(uint64_t val) { m_currency.m_numberOfPeriodsToForgetTxDeletedFromPool = val; return *this; }
 
-  CurrencyBuilder& upgradeHeight(uint64_t val) { m_currency.m_upgradeHeight = val; return *this; }
+  CurrencyBuilder& upgradeHeightv2(uint64_t val) { m_currency.m_upgradeHeightv2 = val; return *this; }
+  CurrencyBuilder& upgradeHeightv3(uint64_t val) { m_currency.m_upgradeHeightv3 = val; return *this; }
   CurrencyBuilder& upgradeVotingThreshold(unsigned int val);
   CurrencyBuilder& upgradeVotingWindow(size_t val) { m_currency.m_upgradeVotingWindow = val; return *this; }
   CurrencyBuilder& upgradeWindow(size_t val);
