@@ -8,7 +8,11 @@
 
 namespace CryptoNote {
 
-PaymentIdIndex::PaymentIdIndex(bool _enabled) : enabled(_enabled) {
+namespace {
+  const size_t DEFAULT_BUCKET_COUNT = 5;
+}
+
+PaymentIdIndex::PaymentIdIndex(bool _enabled) : enabled(_enabled), index(DEFAULT_BUCKET_COUNT, paymentIdHash) {
 }
 
 bool PaymentIdIndex::add(const Transaction& transaction) {
@@ -174,7 +178,7 @@ bool TimestampTransactionsIndex::find(uint64_t timestampBegin, uint64_t timestam
   if (!enabled) {
     throw std::runtime_error("Timestamp transactions index disabled.");
   }
-
+  
   uint32_t hashesNumber = 0;
   if (timestampBegin > timestampEnd) {
     //std::swap(timestampBegin, timestampEnd);
@@ -182,8 +186,6 @@ bool TimestampTransactionsIndex::find(uint64_t timestampBegin, uint64_t timestam
   }
   auto begin = index.lower_bound(timestampBegin);
   auto end = index.upper_bound(timestampEnd);
-  if (timestampEnd == static_cast<uint64_t>(0) && end == begin && begin == index.begin() && index.size() > 0)
-	  ++end; //fix for genesis non-zero timestamp
 
   hashesNumberWithinTimestamps = static_cast<uint32_t>(std::distance(begin, end));
 
@@ -191,7 +193,6 @@ bool TimestampTransactionsIndex::find(uint64_t timestampBegin, uint64_t timestam
     ++hashesNumber;
     hashes.emplace_back(iter->second);
   }
-
   return hashesNumber > 0;
 }
 
@@ -210,7 +211,6 @@ void TimestampTransactionsIndex::serialize(ISerializer& s) {
 }
 
 GeneratedTransactionsIndex::GeneratedTransactionsIndex(bool _enabled) : lastGeneratedTxNumber(0), enabled(_enabled) {
-
 }
 
 bool GeneratedTransactionsIndex::add(const Block& block) {

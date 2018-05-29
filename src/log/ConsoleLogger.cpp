@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <common/ConsoleTools.h>
 
+
 namespace Logging {
 
 using Common::Console::Color;

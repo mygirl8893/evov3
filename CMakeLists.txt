@@ -93,7 +93,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/CTestCustom.cmake ${CMAKE_CURRENT_BIN
 
 project(cryptonote)
 
-include_directories(include src modules "${CMAKE_CURRENT_BINARY_DIR}/version")  
+include_directories(include class src modules "${CMAKE_CURRENT_BINARY_DIR}/version")  
 
 # Check whether we're on a 32-bit or 64-bit system
 if(CMAKE_SIZEOF_VOID_P EQUAL "8")
@@ -243,7 +243,7 @@ else()
   endif()
   if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     # maybe remove
-    set(WARNINGS "${WARNINGS} -Wno-error=mismatched-tags -Wno-error=null-conversion -Wno-overloaded-shift-op-parentheses -Wno-error=shift-count-overflow -Wno-error=tautological-constant-out-of-range-compare -Wno-error=unused-private-field -Wno-error=unneeded-internal-declaration -Wno-error=unused-function")
+    set(WARNINGS "${WARNINGS} -Wno-error=mismatched-tags -Wno-error=null-conversion -Wno-overloaded-shift-op-parentheses -Wno-error=shift-count-overflow -Wno-error=tautological-constant-out-of-range-compare -Wno-error=unused-private-field -Wno-error=unneeded-internal-declaration -Wno-error=unused-function -Wno-error=missing-braces")
 	if(NOT APPLE) 
 		set(WARNINGS "${WARNINGS} -Wno-unused-lambda-capture")
 	endif()

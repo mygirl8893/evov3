@@ -8,7 +8,7 @@
 #include "crypto/hash.h"
 #include "log/LoggerRef.h"
 #include "base/CryptoNoteBasic.h"
-#include "core/Difficulty.h"
+#include "Difficulty.h"
 
 namespace CryptoNote {
 
@@ -27,19 +27,10 @@ public:
 
   uint64_t moneySupply() const { return m_moneySupply; }
   unsigned int emissionSpeedFactor() const { return m_emissionSpeedFactor; }
-  //uint64_t genesisBlockReward() const { return m_genesisBlockReward; }
 
   size_t rewardBlocksWindow() const { return m_rewardBlocksWindow; }
-  
-  //lwma
-  size_t minMixin() const { return m_minMixin; }
-  uint8_t mandatoryMixinBlockVersion() const { return m_mandatoryMixinBlockVersion; }
-  uint32_t mixinStartHeight() const { return m_mixinStartHeight; }
-  uint32_t mandatoryTransaction() const { return m_mandatoryTransaction; }
-  uint32_t killHeight() const { return m_killHeight; }
-  uint64_t tailEmissionReward() const { return m_tailEmissionReward; }
-
   size_t blockGrantedFullRewardZone() const { return m_blockGrantedFullRewardZone; }
+  size_t blockGrantedFullRewardZoneByBlockVersion(uint8_t blockMajorVersion) const;
   size_t minerTxBlobReservedSize() const { return m_minerTxBlobReservedSize; }
 
   size_t numberOfDecimalPlaces() const { return m_numberOfDecimalPlaces; }
@@ -50,13 +41,9 @@ public:
 
   uint64_t difficultyTarget() const { return m_difficultyTarget; }
   size_t difficultyWindow() const { return m_difficultyWindow; }
-  size_t difficultyBlocksCount() const { return m_difficultyWindow; }
-
-  uint64_t depositMinAmount() const { return m_depositMinAmount; }
-  uint32_t depositMinTerm() const { return m_depositMinTerm; }
-  uint32_t depositMaxTerm() const { return m_depositMaxTerm; }
-  uint64_t depositMinTotalRateFactor() const { return m_depositMinTotalRateFactor; }
-  uint64_t depositMaxTotalRate() const { return m_depositMaxTotalRate; }
+  size_t difficultyLag() const { return m_difficultyLag; }
+  size_t difficultyCut() const { return m_difficultyCut; }
+  size_t difficultyBlocksCount() const { return m_difficultyWindow + m_difficultyLag; }
 
   size_t maxBlockSizeInitial() const { return m_maxBlockSizeInitial; }
   uint64_t maxBlockSizeGrowthSpeedNumerator() const { return m_maxBlockSizeGrowthSpeedNumerator; }
@@ -69,19 +56,17 @@ public:
   uint64_t mempoolTxFromAltBlockLiveTime() const { return m_mempoolTxFromAltBlockLiveTime; }
   uint64_t numberOfPeriodsToForgetTxDeletedFromPool() const { return m_numberOfPeriodsToForgetTxDeletedFromPool; }
 
-  uint64_t upgradeHeightv2() const { return m_upgradeHeightv2; }
-  uint64_t upgradeHeightv3() const { return m_upgradeHeightv3; }
-  unsigned int upgradeVotingThreshold() const { return m_upgradeVotingThreshold; }
-  size_t upgradeVotingWindow() const { return m_upgradeVotingWindow; }
-  size_t upgradeWindow() const { return m_upgradeWindow; }
-  size_t minNumberVotingBlocks() const { return (m_upgradeVotingWindow * m_upgradeVotingThreshold + 99) / 100; }
-  uint64_t maxUpgradeDistance() const { return static_cast<uint64_t>(m_upgradeWindow); }
-  uint64_t calculateUpgradeHeight(uint64_t voteCompleteHeight) const { return voteCompleteHeight + m_upgradeWindow; }
-
-  size_t transactionMaxSize() const { return m_transactionMaxSize; }
   size_t fusionTxMaxSize() const { return m_fusionTxMaxSize; }
   size_t fusionTxMinInputCount() const { return m_fusionTxMinInputCount; }
   size_t fusionTxMinInOutCountRatio() const { return m_fusionTxMinInOutCountRatio; }
+
+  uint32_t upgradeHeight(uint8_t majorVersion) const;
+  unsigned int upgradeVotingThreshold() const { return m_upgradeVotingThreshold; }
+  uint32_t upgradeVotingWindow() const { return m_upgradeVotingWindow; }
+  uint32_t upgradeWindow() const { return m_upgradeWindow; }
+  uint32_t minNumberVotingBlocks() const { return (m_upgradeVotingWindow * m_upgradeVotingThreshold + 99) / 100; }
+  uint32_t maxUpgradeDistance() const { return 7 * m_upgradeWindow; }
+  uint32_t calculateUpgradeHeight(uint32_t voteCompleteHeight) const { return voteCompleteHeight + m_upgradeWindow; }
 
   const std::string& blocksFileName() const { return m_blocksFileName; }
   const std::string& blocksCacheFileName() const { return m_blocksCacheFileName; }
@@ -94,19 +79,12 @@ public:
   const Block& genesisBlock() const { return m_genesisBlock; }
   const Crypto::Hash& genesisBlockHash() const { return m_genesisBlockHash; }
 
-  bool getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint32_t height,
-  uint64_t& reward, int64_t& emissionChange) const;
-  uint64_t calculateInterest(uint64_t amount, uint32_t term, uint32_t height) const;
-  uint64_t calculateTotalTransactionInterest(const Transaction& tx, uint32_t height) const;
-  uint64_t getTransactionInputAmount(const TransactionInput& in, uint32_t height) const;
-  uint64_t getTransactionAllInputsAmount(const Transaction& tx, uint32_t height) const;
-  bool getTransactionFee(const Transaction& tx, uint64_t & fee, uint32_t height) const;
-  uint64_t getTransactionFee(const Transaction& tx, uint32_t height) const;
+  bool getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
+    uint64_t& reward, int64_t& emissionChange) const;
   size_t maxBlockCumulativeSize(uint64_t height) const;
 
-  bool constructMinerTx(uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
-    uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx,
-    const BinaryArray& extraNonce = BinaryArray(), size_t maxOuts = 1) const;
+  bool constructMinerTx(uint8_t blockMajorVersion, uint32_t height, size_t medianSize, uint64_t alreadyGeneratedCoins, size_t currentBlockSize,
+    uint64_t fee, const AccountPublicAddress& minerAddress, Transaction& tx, const BinaryArray& extraNonce = BinaryArray(), size_t maxOuts = 1) const;
 
   bool isFusionTransaction(const Transaction& transaction) const;
   bool isFusionTransaction(const Transaction& transaction, size_t size) const;
@@ -122,9 +100,11 @@ public:
   std::string formatAmount(int64_t amount) const;
   bool parseAmount(const std::string& str, uint64_t& amount) const;
 
-  difficulty_type nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const;
+  difficulty_type nextDifficulty(std::vector<uint64_t> timestamps, std::vector<difficulty_type> cumulativeDifficulties) const;
 
-  bool checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDifficulty, Crypto::Hash& proofOfWork) const;
+  bool checkProofOfWorkV1(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
+  bool checkProofOfWorkV2(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
+  bool checkProofOfWork(Crypto::cn_context& context, const Block& block, difficulty_type currentDiffic, Crypto::Hash& proofOfWork) const;
 
   size_t getApproximateMaximumInputCount(size_t transactionSize, size_t outputCount, size_t mixinCount) const;
 
@@ -135,7 +115,6 @@ private:
   bool init();
 
   bool generateGenesisBlock();
-  uint64_t baseRewardFunction(uint64_t alreadyGeneratedCoins, uint32_t height) const;
 
 private:
   uint64_t m_maxBlockHeight;
@@ -149,18 +128,8 @@ private:
 
   uint64_t m_moneySupply;
   unsigned int m_emissionSpeedFactor;
-  //uint64_t m_genesisBlockReward;
 
   size_t m_rewardBlocksWindow;
-  
-  //lwma
-  size_t m_minMixin;
-  uint8_t m_mandatoryMixinBlockVersion;
-  uint32_t m_mixinStartHeight;
-  uint32_t m_mandatoryTransaction;
-  uint32_t m_killHeight;
-  uint64_t m_tailEmissionReward;
-
   size_t m_blockGrantedFullRewardZone;
   size_t m_minerTxBlobReservedSize;
 
@@ -175,12 +144,6 @@ private:
   size_t m_difficultyLag;
   size_t m_difficultyCut;
 
-  uint64_t m_depositMinAmount;
-  uint32_t m_depositMinTerm;
-  uint32_t m_depositMaxTerm;
-  uint64_t m_depositMinTotalRateFactor;
-  uint64_t m_depositMaxTotalRate;
-
   size_t m_maxBlockSizeInitial;
   uint64_t m_maxBlockSizeGrowthSpeedNumerator;
   uint64_t m_maxBlockSizeGrowthSpeedDenominator;
@@ -192,16 +155,15 @@ private:
   uint64_t m_mempoolTxFromAltBlockLiveTime;
   uint64_t m_numberOfPeriodsToForgetTxDeletedFromPool;
 
-  uint64_t m_upgradeHeightv2;
-  uint64_t m_upgradeHeightv3;
-  unsigned int m_upgradeVotingThreshold;
-  size_t m_upgradeVotingWindow;
-  size_t m_upgradeWindow;
-
-  size_t m_transactionMaxSize;
   size_t m_fusionTxMaxSize;
   size_t m_fusionTxMinInputCount;
   size_t m_fusionTxMinInOutCountRatio;
+
+  uint32_t m_upgradeHeightV2;
+  uint32_t m_upgradeHeightV3;
+  unsigned int m_upgradeVotingThreshold;
+  uint32_t m_upgradeVotingWindow;
+  uint32_t m_upgradeWindow;
 
   std::string m_blocksFileName;
   std::string m_blocksCacheFileName;
@@ -210,10 +172,8 @@ private:
   std::string m_blockchinIndicesFileName;
 
   static const std::vector<uint64_t> PRETTY_AMOUNTS;
-  static const std::vector<uint64_t> POWERS_OF_TEN;
 
   bool m_testnet;
-  std::string m_genesisCoinbaseTxHex;
 
   Block m_genesisBlock;
   Crypto::Hash m_genesisBlockHash;
@@ -234,9 +194,6 @@ public:
     return m_currency;
   }
 
-  Transaction generateGenesisTransaction();
-  //Transaction generateGenesisTransaction(const std::vector<AccountPublicAddress>& targets);
-
   CurrencyBuilder& maxBlockNumber(uint64_t val) { m_currency.m_maxBlockHeight = val; return *this; }
   CurrencyBuilder& maxBlockBlobSize(size_t val) { m_currency.m_maxBlockBlobSize = val; return *this; }
   CurrencyBuilder& maxTxSize(size_t val) { m_currency.m_maxTxSize = val; return *this; }
@@ -248,18 +205,8 @@ public:
 
   CurrencyBuilder& moneySupply(uint64_t val) { m_currency.m_moneySupply = val; return *this; }
   CurrencyBuilder& emissionSpeedFactor(unsigned int val);
-  //CurrencyBuilder& genesisBlockReward(uint64_t val) { m_currency.m_genesisBlockReward = val; return *this; }
 
   CurrencyBuilder& rewardBlocksWindow(size_t val) { m_currency.m_rewardBlocksWindow = val; return *this; }
-  
-  //lwma
-  CurrencyBuilder& minMixin(size_t val) { m_currency.m_minMixin = val; return *this; }
-  CurrencyBuilder& mandatoryMixinBlockVersion(uint8_t val) { m_currency.m_mandatoryMixinBlockVersion = val; return *this; }
-  CurrencyBuilder& mixinStartHeight(uint32_t val) { m_currency.m_mixinStartHeight = val; return *this; }
-  CurrencyBuilder& mandatoryTransaction(uint8_t val) { m_currency.m_mandatoryTransaction = val; return *this; }
-  CurrencyBuilder& killHeight(uint32_t val) { m_currency.m_killHeight = val; return *this; }
-  CurrencyBuilder& tailEmissionReward(uint64_t val) { m_currency.m_tailEmissionReward = val; return *this; }
-
   CurrencyBuilder& blockGrantedFullRewardZone(size_t val) { m_currency.m_blockGrantedFullRewardZone = val; return *this; }
   CurrencyBuilder& minerTxBlobReservedSize(size_t val) { m_currency.m_minerTxBlobReservedSize = val; return *this; }
 
@@ -273,12 +220,6 @@ public:
   CurrencyBuilder& difficultyLag(size_t val) { m_currency.m_difficultyLag = val; return *this; }
   CurrencyBuilder& difficultyCut(size_t val) { m_currency.m_difficultyCut = val; return *this; }
 
-  CurrencyBuilder& depositMinAmount(uint64_t val) { m_currency.m_depositMinAmount = val; return *this; }
-  CurrencyBuilder& depositMinTerm(uint32_t val) { m_currency.m_depositMinTerm = val; return *this; }
-  CurrencyBuilder& depositMaxTerm(uint32_t val) { m_currency.m_depositMaxTerm = val; return *this; }
-  CurrencyBuilder& depositMinTotalRateFactor(uint64_t val) { m_currency.m_depositMinTotalRateFactor = val; return *this; }
-  CurrencyBuilder& depositMaxTotalRate(uint64_t val) { m_currency.m_depositMaxTotalRate = val; return *this; }
-
   CurrencyBuilder& maxBlockSizeInitial(size_t val) { m_currency.m_maxBlockSizeInitial = val; return *this; }
   CurrencyBuilder& maxBlockSizeGrowthSpeedNumerator(uint64_t val) { m_currency.m_maxBlockSizeGrowthSpeedNumerator = val; return *this; }
   CurrencyBuilder& maxBlockSizeGrowthSpeedDenominator(uint64_t val) { m_currency.m_maxBlockSizeGrowthSpeedDenominator = val; return *this; }
@@ -290,24 +231,22 @@ public:
   CurrencyBuilder& mempoolTxFromAltBlockLiveTime(uint64_t val) { m_currency.m_mempoolTxFromAltBlockLiveTime = val; return *this; }
   CurrencyBuilder& numberOfPeriodsToForgetTxDeletedFromPool(uint64_t val) { m_currency.m_numberOfPeriodsToForgetTxDeletedFromPool = val; return *this; }
 
-  CurrencyBuilder& upgradeHeightv2(uint64_t val) { m_currency.m_upgradeHeightv2 = val; return *this; }
-  CurrencyBuilder& upgradeHeightv3(uint64_t val) { m_currency.m_upgradeHeightv3 = val; return *this; }
-  CurrencyBuilder& upgradeVotingThreshold(unsigned int val);
-  CurrencyBuilder& upgradeVotingWindow(size_t val) { m_currency.m_upgradeVotingWindow = val; return *this; }
-  CurrencyBuilder& upgradeWindow(size_t val);
-
-  CurrencyBuilder& transactionMaxSize(size_t val) { m_currency.m_transactionMaxSize = val; return *this; }
   CurrencyBuilder& fusionTxMaxSize(size_t val) { m_currency.m_fusionTxMaxSize = val; return *this; }
   CurrencyBuilder& fusionTxMinInputCount(size_t val) { m_currency.m_fusionTxMinInputCount = val; return *this; }
   CurrencyBuilder& fusionTxMinInOutCountRatio(size_t val) { m_currency.m_fusionTxMinInOutCountRatio = val; return *this; }
+
+  CurrencyBuilder& upgradeHeightV2(uint64_t val) { m_currency.m_upgradeHeightV2 = val; return *this; }
+  CurrencyBuilder& upgradeHeightV3(uint64_t val) { m_currency.m_upgradeHeightV3 = val; return *this; }
+  CurrencyBuilder& upgradeVotingThreshold(unsigned int val);
+  CurrencyBuilder& upgradeVotingWindow(size_t val) { m_currency.m_upgradeVotingWindow = val; return *this; }
+  CurrencyBuilder& upgradeWindow(size_t val);
 
   CurrencyBuilder& blocksFileName(const std::string& val) { m_currency.m_blocksFileName = val; return *this; }
   CurrencyBuilder& blocksCacheFileName(const std::string& val) { m_currency.m_blocksCacheFileName = val; return *this; }
   CurrencyBuilder& blockIndexesFileName(const std::string& val) { m_currency.m_blockIndexesFileName = val; return *this; }
   CurrencyBuilder& txPoolFileName(const std::string& val) { m_currency.m_txPoolFileName = val; return *this; }
   CurrencyBuilder& blockchinIndicesFileName(const std::string& val) { m_currency.m_blockchinIndicesFileName = val; return *this; }
-
-  CurrencyBuilder& genesisCoinbaseTxHex(const std::string& val) { m_currency.m_genesisCoinbaseTxHex = val; return *this; }
+  
   CurrencyBuilder& testnet(bool val) { m_currency.m_testnet = val; return *this; }
 
 private:

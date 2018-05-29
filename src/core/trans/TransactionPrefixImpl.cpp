@@ -4,7 +4,7 @@
 #include <system_error>
 
 #include "base/CryptoNoteBasic.h"
-#include "TransactionApiExtra.h"
+#include "core/trans/TransactionApiExtra.h"
 #include "TransactionUtils.h"
 #include "base/CryptoNoteTools.h"
 

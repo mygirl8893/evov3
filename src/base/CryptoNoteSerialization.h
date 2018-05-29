@@ -10,7 +10,7 @@ namespace Crypto {
 bool serialize(PublicKey& pubKey, Common::StringView name, CryptoNote::ISerializer& serializer);
 bool serialize(SecretKey& secKey, Common::StringView name, CryptoNote::ISerializer& serializer);
 bool serialize(Hash& h, Common::StringView name, CryptoNote::ISerializer& serializer);
-bool serialize(chacha8_iv& chacha8, Common::StringView name, CryptoNote::ISerializer& serializer);
+bool serialize(chacha8_iv& chacha, Common::StringView name, CryptoNote::ISerializer& serializer);
 bool serialize(KeyImage& keyImage, Common::StringView name, CryptoNote::ISerializer& serializer);
 bool serialize(Signature& sig, Common::StringView name, CryptoNote::ISerializer& serializer);
 bool serialize(EllipticCurveScalar& ecScalar, Common::StringView name, CryptoNote::ISerializer& serializer);
@@ -39,6 +39,7 @@ void serialize(MultisignatureOutput& multisignature, ISerializer& serializer);
 
 void serialize(BlockHeader& header, ISerializer& serializer);
 void serialize(Block& block, ISerializer& serializer);
+void serialize(ParentBlockSerializer& pbs, ISerializer& serializer);
 void serialize(TransactionExtraMergeMiningTag& tag, ISerializer& serializer);
 
 void serialize(AccountPublicAddress& address, ISerializer& serializer);

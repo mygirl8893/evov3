@@ -7,8 +7,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "common/static_assert.h"
-#include "common/int-util.h"
+#include "static_assert.h"
+#include "int-util.h"
 
 static inline void *padd(void *p, size_t i) {
   return (char *) p + i;

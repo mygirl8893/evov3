@@ -2,7 +2,7 @@
 
 #include <queue>
 
-#include "core/IntrusiveLinkedList.h"
+#include "IntrusiveLinkedList.h"
 
 #include "System/Event.h"
 #include "System/InterruptedException.h"

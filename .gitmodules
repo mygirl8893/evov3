@@ -10,3 +10,6 @@
 [submodule "library"]
 	path = library
 	url = https://github.com/Nur1Labs/library.git
+[submodule "class"]
+	path = class
+	url = https://github.com/Nur1Labs/class.git

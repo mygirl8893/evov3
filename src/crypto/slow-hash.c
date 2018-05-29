@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-#include "common/int-util.h"
+#include "int-util.h"
 #include "hash-ops.h"
 #include "oaes_lib.h"
 #include "aesb.h"

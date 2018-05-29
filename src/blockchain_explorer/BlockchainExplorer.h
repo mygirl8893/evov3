@@ -7,7 +7,7 @@
 #include "IBlockchainExplorer.h"
 #include "INode.h"
 
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 #include "BlockchainExplorerErrors.h"
 
 #include "wallet/WalletAsyncContextCounter.h"

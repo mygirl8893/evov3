@@ -2,25 +2,4 @@ Release notes 3.0
 
 - upload to github
 - added change for files
-
-Release notes 3.0.1
-
-- added emmision speed factor
-- change zawy index
-- zawy fixed
-- remove bug payment gate service
-
-Release notes 3.0.2
-
-- move iseria
-- change core folder
-
-Release notes 3.0.3
-
-- core change[easy]
-
-Release notes 3.0.4
-
-- add on CN-7 by Aiwe K from Karbowanec developer
-- change contrib
-- added submodules
+- reset work

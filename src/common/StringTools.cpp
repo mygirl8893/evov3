@@ -332,9 +332,8 @@ std::string timeIntervalToString(uint64_t intervalInSeconds) {
     ".h" << std::setw(2) << hours <<
     ".m" << std::setw(2) << minutes <<
     ".s" << std::setw(2) << seconds;
- 
+
   return ss.str();
 }
-
 
 }

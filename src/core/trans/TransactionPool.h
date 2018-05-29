@@ -13,8 +13,8 @@
 #include <boost/multi_index/member.hpp>
 
 #include "common/Util.h"
-#include "common/int-util.h"
-#include "common/ObserverManager.h"
+#include "int-util.h"
+#include "ObserverManager.h"
 #include "crypto/hash.h"
 
 #include "base/CryptoNoteBasic.h"
@@ -23,7 +23,7 @@
 #include "seria/ITimeProvider.h"
 #include "ITransactionValidator.h"
 #include "ITxPoolObserver.h"
-#include "core/VerificationContext.h"
+#include "VerificationContext.h"
 #include "core/block/BlockchainIndices.h"
 
 #include <log/LoggerRef.h>
@@ -81,8 +81,8 @@ namespace CryptoNote {
     bool deinit();
 
     bool have_tx(const Crypto::Hash &id) const;
-    bool add_tx(const Transaction &tx, const Crypto::Hash &id, size_t blobSize, tx_verification_context& tvc, bool keeped_by_block, uint32_t height);
-    bool add_tx(const Transaction &tx, tx_verification_context& tvc, bool keeped_by_block, uint32_t height);
+    bool add_tx(const Transaction &tx, const Crypto::Hash &id, size_t blobSize, tx_verification_context& tvc, bool keeped_by_block);
+    bool add_tx(const Transaction &tx, tx_verification_context& tvc, bool keeped_by_block);
     //gets tx and remove it from pool
     bool take_tx(const Crypto::Hash &id, Transaction &tx, size_t& blobSize, uint64_t& fee);
 
@@ -199,6 +199,7 @@ namespace CryptoNote {
 
     PaymentIdIndex m_paymentIdIndex;
     TimestampTransactionsIndex m_timestampIndex;
-    std::unordered_map<Crypto::Hash, uint64_t> m_ttlIndex;
   };
 }
+
+

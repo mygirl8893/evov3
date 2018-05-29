@@ -28,8 +28,8 @@ JsonRpcServer::JsonRpcServer(System::Dispatcher& sys, System::Event& stopEvent, 
 {
 }
 
-void JsonRpcServer::start(const std::string& bindAddress, uint16_t bindPort, const std::string& user, const std::string& password) {
-  HttpServer::start(bindAddress, bindPort, user, password);
+void JsonRpcServer::start(const std::string& bindAddress, uint16_t bindPort) {
+  HttpServer::start(bindAddress, bindPort);
   stopEvent.wait();
   HttpServer::stop();
 }

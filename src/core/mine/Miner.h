@@ -10,7 +10,7 @@
 #include "core/Difficulty.h"
 #include "IMinerHandler.h"
 #include "MinerConfig.h"
-#include "core/OnceInInterval.h"
+#include "OnceInInterval.h"
 
 #include <log/LoggerRef.h>
 

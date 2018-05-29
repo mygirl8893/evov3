@@ -39,7 +39,6 @@ uint64_t getTransactionInputAmount(const TransactionInput& in) {
     return boost::get<KeyInput>(in).amount;
   }
   if (in.type() == typeid(MultisignatureInput)) {
-    // TODO calculate interest
     return boost::get<MultisignatureInput>(in).amount;
   }
   return 0;

@@ -10,10 +10,11 @@
 #include "INode.h"
 #include "wallet/WalletErrors.h"
 #include "wallet/WalletAsyncContextCounter.h"
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 #include "core/trans/TransactionExtra.h"
 #include "base/CryptoNoteFormatUtils.h"
 #include "core/Currency.h"
+#include "log/ConsoleLogger.h"
 #include "WalletUserTransactionsCache.h"
 #include "WalletUnconfirmedTransactions.h"
 
@@ -53,36 +54,17 @@ public:
 
   virtual uint64_t actualBalance() override;
   virtual uint64_t pendingBalance() override;
-  virtual uint64_t actualDepositBalance() override;
-  virtual uint64_t pendingDepositBalance() override;
 
   virtual size_t getTransactionCount() override;
   virtual size_t getTransferCount() override;
-  virtual size_t getDepositCount() override;
 
   virtual TransactionId findTransactionByTransferId(TransferId transferId) override;
 
   virtual bool getTransaction(TransactionId transactionId, WalletLegacyTransaction& transaction) override;
   virtual bool getTransfer(TransferId transferId, WalletLegacyTransfer& transfer) override;
-  virtual bool getDeposit(DepositId depositId, Deposit& deposit) override;
-  virtual std::vector<Payments> getTransactionsByPaymentIds(const std::vector<PaymentId>& paymentIds) const override;
 
-  virtual TransactionId sendTransaction(const WalletLegacyTransfer& transfer,
-                                        uint64_t fee,
-                                        const std::string& extra = "",
-                                        uint64_t mixIn = 0,
-                                        uint64_t unlockTimestamp = 0,
-                                        const std::vector<TransactionMessage>& messages = std::vector<TransactionMessage>(),
-                                        uint64_t ttl = 0) override;
-  virtual TransactionId sendTransaction(const std::vector<WalletLegacyTransfer>& transfers,
-                                        uint64_t fee,
-                                        const std::string& extra = "",
-                                        uint64_t mixIn = 0,
-                                        uint64_t unlockTimestamp = 0,
-                                        const std::vector<TransactionMessage>& messages = std::vector<TransactionMessage>(),
-                                        uint64_t ttl = 0) override;
-  virtual TransactionId deposit(uint32_t term, uint64_t amount, uint64_t fee, uint64_t mixIn = 0) override;
-  virtual TransactionId withdrawDeposits(const std::vector<DepositId>& depositIds, uint64_t fee) override;
+  virtual TransactionId sendTransaction(const WalletLegacyTransfer& transfer, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) override;
+  virtual TransactionId sendTransaction(const std::vector<WalletLegacyTransfer>& transfers, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) override;
   virtual std::error_code cancelTransaction(size_t transactionId) override;
 
   virtual void getAccountKeys(AccountKeys& keys) override;
@@ -96,8 +78,6 @@ private:
   // ITransfersObserver
   virtual void onTransactionUpdated(ITransfersSubscription* object, const Crypto::Hash& transactionHash) override;
   virtual void onTransactionDeleted(ITransfersSubscription* object, const Crypto::Hash& transactionHash) override;
-  virtual void onTransfersUnlocked(ITransfersSubscription* object, const std::vector<TransactionOutputInformation>& unlockedTransfers) override;
-  virtual void onTransfersLocked(ITransfersSubscription* object, const std::vector<TransactionOutputInformation>& lockedTransfers) override;
 
   void initSync();
   void throwIfNotInitialised();
@@ -107,27 +87,10 @@ private:
 
   void synchronizationCallback(WalletRequest::Callback callback, std::error_code ec);
   void sendTransactionCallback(WalletRequest::Callback callback, std::error_code ec);
-  void notifyClients(std::deque<std::unique_ptr<WalletLegacyEvent> >& events);
+  void notifyClients(std::deque<std::shared_ptr<WalletLegacyEvent> >& events);
   void notifyIfBalanceChanged();
-  void notifyIfDepositBalanceChanged();
-
-  std::unique_ptr<WalletLegacyEvent> getActualDepositBalanceChangedEvent();
-  std::unique_ptr<WalletLegacyEvent> getPendingDepositBalanceChangedEvent();
-
-  std::unique_ptr<WalletLegacyEvent> getActualBalanceChangedEvent();
-  std::unique_ptr<WalletLegacyEvent> getPendingBalanceChangedEvent();
-
-  uint64_t calculateActualDepositBalance();
-  uint64_t calculatePendingDepositBalance();
-
-  uint64_t calculateActualBalance();
-  uint64_t calculatePendingBalance();
-
-  void pushBalanceUpdatedEvents(std::deque<std::unique_ptr<WalletLegacyEvent>>& eventsQueue);
 
   std::vector<TransactionId> deleteOutdatedUnconfirmedTransactions();
-  
-  std::vector<uint32_t> getTransactionHeights(std::vector<TransactionOutputInformation> transfers);
 
   enum WalletState
   {
@@ -143,13 +106,11 @@ private:
   std::string m_password;
   const CryptoNote::Currency& m_currency;
   INode& m_node;
+  Logging::ConsoleLogger m_consoleLogger;
   bool m_isStopping;
 
   std::atomic<uint64_t> m_lastNotifiedActualBalance;
   std::atomic<uint64_t> m_lastNotifiedPendingBalance;
-
-  std::atomic<uint64_t> m_lastNotifiedActualDepositBalance;
-  std::atomic<uint64_t> m_lastNotifiedPendingDepositBalance;
 
   BlockchainSynchronizer m_blockchainSync;
   TransfersSyncronizer m_transfersSync;

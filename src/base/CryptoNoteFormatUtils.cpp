@@ -2,8 +2,7 @@
 
 #include <set>
 #include <log/LoggerRef.h>
-#include <common/int-util.h>
-#include <common/Varint.h>
+#include <Varint.h>
 
 #include "Serialization/BinaryOutputStreamSerializer.h"
 #include "Serialization/BinaryInputStreamSerializer.h"
@@ -65,12 +64,42 @@ uint64_t power_integral(uint64_t a, uint64_t b) {
   return total;
 }
 
+bool get_tx_fee(const Transaction& tx, uint64_t & fee) {
+  uint64_t amount_in = 0;
+  uint64_t amount_out = 0;
+
+  for (const auto& in : tx.inputs) {
+    if (in.type() == typeid(KeyInput)) {
+      amount_in += boost::get<KeyInput>(in).amount;
+    } else if (in.type() == typeid(MultisignatureInput)) {
+      amount_in += boost::get<MultisignatureInput>(in).amount;
+    }
+  }
+
+  for (const auto& o : tx.outputs) {
+    amount_out += o.amount;
+  }
+
+  if (!(amount_in >= amount_out)) {
+    return false;
+  }
+
+  fee = amount_in - amount_out;
+  return true;
+}
+
+uint64_t get_tx_fee(const Transaction& tx) {
+  uint64_t r = 0;
+  if (!get_tx_fee(tx, r))
+    return 0;
+  return r;
+}
+
+
 bool constructTransaction(
   const AccountKeys& sender_account_keys,
   const std::vector<TransactionSourceEntry>& sources,
   const std::vector<TransactionDestinationEntry>& destinations,
-  const std::vector<tx_message_entry>& messages,
-  uint64_t ttl,
   std::vector<uint8_t> extra,
   Transaction& tx,
   uint64_t unlock_time,
@@ -81,7 +110,7 @@ bool constructTransaction(
   tx.outputs.clear();
   tx.signatures.clear();
 
-  tx.version = TRANSACTION_VERSION_1;
+  tx.version = CURRENT_TRANSACTION_VERSION;
   tx.unlockTime = unlock_time;
 
   tx.extra = extra;
@@ -181,22 +210,6 @@ bool constructTransaction(
     return false;
   }
 
-  for (size_t i = 0; i < messages.size(); i++) {
-    const tx_message_entry &msg = messages[i];
-    tx_extra_message tag;
-    if (!tag.encrypt(i, msg.message, msg.encrypt ? &msg.addr : NULL, txkey)) {
-      return false;
-    }
-
-    if (!append_message_to_extra(tx.extra, tag)) {
-      return false;
-    }
-  }
-
-  if (ttl != 0) {
-    appendTTLToExtra(tx.extra, ttl);
-  }
-
   //generate ring signatures
   Hash tx_prefix_hash;
   getObjectHash(*static_cast<TransactionPrefix*>(&tx), tx_prefix_hash);
@@ -249,12 +262,7 @@ uint32_t get_block_height(const Block& b) {
 
 bool check_inputs_types_supported(const TransactionPrefix& tx) {
   for (const auto& in : tx.inputs) {
-    const auto& inputType = in.type();
-    if (inputType == typeid(MultisignatureInput)) {
-      if (tx.version < TRANSACTION_VERSION_2) {
-        return false;
-      }
-    } else if (in.type() != typeid(KeyInput) && in.type() != typeid(MultisignatureInput)) {
+    if (in.type() != typeid(KeyInput) && in.type() != typeid(MultisignatureInput)) {
       return false;
     }
   }
@@ -279,11 +287,6 @@ bool check_outs_valid(const TransactionPrefix& tx, std::string* error) {
         return false;
       }
     } else if (out.target.type() == typeid(MultisignatureOutput)) {
-      if (tx.version < TRANSACTION_VERSION_2) {
-        *error = "Transaction contains multisignature output but its version is less than 2";
-        return false;
-      }
-
       const MultisignatureOutput& multisignatureOutput = ::boost::get<MultisignatureOutput>(out.target);
       if (multisignatureOutput.requiredSignatureCount > multisignatureOutput.keys.size()) {
         if (error) {
@@ -337,22 +340,6 @@ bool check_inputs_overflow(const TransactionPrefix &tx) {
       amount = boost::get<KeyInput>(in).amount;
     } else if (in.type() == typeid(MultisignatureInput)) {
       amount = boost::get<MultisignatureInput>(in).amount;
-      if (boost::get<MultisignatureInput>(in).term != 0) {
-        uint64_t hi;
-        uint64_t lo = mul128(amount, CryptoNote::parameters::DEPOSIT_MAX_TOTAL_RATE, &hi);
-        uint64_t maxInterestHi;
-        uint64_t maxInterestLo;
-        div128_32(hi, lo, 100, &maxInterestHi, &maxInterestLo);
-        if (maxInterestHi > 0) {
-          return false;
-        }
-
-        if (amount > std::numeric_limits<uint64_t>::max() - maxInterestLo) {
-          return false;
-        }
-
-        amount += maxInterestLo;
-      }
     }
 
     if (money > amount + money)
@@ -449,10 +436,24 @@ bool get_block_hashing_blob(const Block& b, BinaryArray& ba) {
   return true;
 }
 
+bool get_parent_block_hashing_blob(const Block& b, BinaryArray& blob) {
+  auto serializer = makeParentBlockSerializer(b, true, true);
+  return toBinaryArray(serializer, blob);
+}
+
 bool get_block_hash(const Block& b, Hash& res) {
   BinaryArray ba;
   if (!get_block_hashing_blob(b, ba)) {
     return false;
+  }
+
+  if (BLOCK_MAJOR_VERSION_2 <= b.majorVersion) {
+    BinaryArray parent_blob;
+    auto serializer = makeParentBlockSerializer(b, true, false);
+    if (!toBinaryArray(serializer, parent_blob))
+      return false;
+
+    ba.insert(ba.end(), parent_blob.begin(), parent_blob.end());
   }
 
   return getObjectHash(ba, res);
@@ -475,11 +476,18 @@ bool get_aux_block_header_hash(const Block& b, Hash& res) {
 
 bool get_block_longhash(cn_context &context, const Block& b, Hash& res) {
   BinaryArray bd;
-  if (!get_block_hashing_blob(b, bd)) {
+  if (b.majorVersion == BLOCK_MAJOR_VERSION_1) {
+    if (!get_block_hashing_blob(b, bd)) {
+      return false;
+    }
+  } else if (b.majorVersion >= BLOCK_MAJOR_VERSION_2) {
+    if (!get_parent_block_hashing_blob(b, bd)) {
+      return false;
+    }
+  } else {
     return false;
   }
-
-  cn_slow_hash(context, bd.data(), bd.size(), res, b.majorVersion);
+  cn_slow_hash(context, bd.data(), bd.size(), res);
   return true;
 }
 

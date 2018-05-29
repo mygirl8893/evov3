@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <vector>
 
-#include "common/int-util.h"
+#include "int-util.h"
 #include "crypto/hash.h"
 #include "CryptoNoteConfig.h"
-#include "core/Difficulty.h"
+#include "Difficulty.h"
 
 namespace CryptoNote {
 
@@ -55,5 +55,4 @@ namespace CryptoNote {
     carry = cadc(high, top, carry);
     return !carry;
   }
-
 }

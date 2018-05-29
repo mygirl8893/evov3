@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IWalletLegacy.h"
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 
 namespace CryptoNote
 {
@@ -60,19 +60,6 @@ private:
   TransactionId m_id;
 };
 
-class WalletDepositsUpdatedEvent : public WalletLegacyEvent {
-public:
-  WalletDepositsUpdatedEvent(std::vector<DepositId>&& depositIds) : updatedDeposits(depositIds) {}
-
-  virtual ~WalletDepositsUpdatedEvent() {}
-
-  virtual void notify(Tools::ObserverManager<CryptoNote::IWalletLegacyObserver>& observer) override {
-    observer.notify(&IWalletLegacyObserver::depositsUpdated, updatedDeposits);
-  }
-private:
-  std::vector<DepositId> updatedDeposits;
-};
-
 class WalletSynchronizationProgressUpdatedEvent : public WalletLegacyEvent
 {
 public:
@@ -125,34 +112,6 @@ public:
   virtual void notify(Tools::ObserverManager<CryptoNote::IWalletLegacyObserver>& observer) override
   {
     observer.notify(&IWalletLegacyObserver::pendingBalanceUpdated, m_balance);
-  }
-private:
-  uint64_t m_balance;
-};
-
-class WalletActualDepositBalanceUpdatedEvent : public WalletLegacyEvent
-{
-public:
-  WalletActualDepositBalanceUpdatedEvent(uint64_t balance) : m_balance(balance) {}
-  virtual ~WalletActualDepositBalanceUpdatedEvent() {}
-
-  virtual void notify(Tools::ObserverManager<CryptoNote::IWalletLegacyObserver>& observer)
-  {
-    observer.notify(&IWalletLegacyObserver::actualDepositBalanceUpdated, m_balance);
-  }
-private:
-  uint64_t m_balance;
-};
-
-class WalletPendingDepositBalanceUpdatedEvent : public WalletLegacyEvent
-{
-public:
-  WalletPendingDepositBalanceUpdatedEvent(uint64_t balance) : m_balance(balance) {}
-  virtual ~WalletPendingDepositBalanceUpdatedEvent() {}
-
-  virtual void notify(Tools::ObserverManager<CryptoNote::IWalletLegacyObserver>& observer)
-  {
-    observer.notify(&IWalletLegacyObserver::pendingDepositBalanceUpdated, m_balance);
   }
 private:
   uint64_t m_balance;

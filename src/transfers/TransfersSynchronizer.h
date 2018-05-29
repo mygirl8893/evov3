@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 #include "ITransfersSynchronizer.h"
 #include "IBlockchainSynchronizer.h"
 #include "TypeHelpers.h"
@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <memory>
 #include <cstring>
+
+#include "log/LoggerRef.h"
 
 namespace CryptoNote {
 class Currency;
@@ -20,7 +22,7 @@ class INode;
 
 class TransfersSyncronizer : public ITransfersSynchronizer, public IBlockchainConsumerObserver {
 public:
-  TransfersSyncronizer(const CryptoNote::Currency& currency, IBlockchainSynchronizer& sync, INode& node);
+  TransfersSyncronizer(const CryptoNote::Currency& currency, Logging::ILogger& logger, IBlockchainSynchronizer& sync, INode& node);
   virtual ~TransfersSyncronizer();
 
   void initTransactionPool(const std::unordered_set<Crypto::Hash>& uncommitedTransactions);
@@ -40,6 +42,8 @@ public:
   virtual void load(std::istream& in) override;
 
 private:
+  Logging::LoggerRef m_logger;
+
   // map { view public key -> consumer }
   typedef std::unordered_map<Crypto::PublicKey, std::unique_ptr<TransfersConsumer>> ConsumersContainer;
   ConsumersContainer m_consumers;
