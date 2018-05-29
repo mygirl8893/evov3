@@ -6,6 +6,7 @@
 #include "common/BlockingQueue.h"
 #include "base/CryptoNoteFormatUtils.h"
 #include "core/trans/TransactionApi.h"
+#include "core/trans/TransactionExtra.h"
 
 #include "IWallet.h"
 #include "INode.h"
@@ -90,8 +91,8 @@ std::vector<Crypto::Hash> getBlockHashes(const CryptoNote::CompleteBlock* blocks
 
 namespace CryptoNote {
 
-TransfersConsumer::TransfersConsumer(const CryptoNote::Currency& currency, INode& node, Logging::ILogger& logger, const SecretKey& viewSecret) :
-  m_node(node), m_viewSecret(viewSecret), m_currency(currency), m_logger(logger, "TransfersConsumer") {
+TransfersConsumer::TransfersConsumer(const CryptoNote::Currency& currency, INode& node, const SecretKey& viewSecret) :
+  m_node(node), m_viewSecret(viewSecret), m_currency(currency) {
   updateSyncStart();
 }
 
@@ -103,7 +104,7 @@ ITransfersSubscription& TransfersConsumer::addSubscription(const AccountSubscrip
   auto& res = m_subscriptions[subscription.keys.address.spendPublicKey];
 
   if (res.get() == nullptr) {
-    res.reset(new TransfersSubscription(m_currency, m_logger.getLogger(), subscription));
+    res.reset(new TransfersSubscription(m_currency, subscription));
     m_spendKeys.insert(subscription.keys.address.spendPublicKey);
     updateSyncStart();
   }
@@ -402,6 +403,7 @@ std::error_code createTransfers(
 
       info.amount = amount;
       info.requiredSignatures = out.requiredSignatureCount;
+      info.term = out.term;
     }
 
     transfers.push_back(info);
@@ -490,7 +492,8 @@ void TransfersConsumer::processOutputs(const TransactionBlockInfo& blockInfo, Tr
       assert(subscribtionTxInfo.blockHeight == blockInfo.height);
     }
   } else {
-    updated = sub.addTransaction(blockInfo, tx, transfers);
+    auto messages = get_messages_from_extra(tx.getExtra(), tx.getTransactionPublicKey(), &sub.getKeys().spendSecretKey);
+    updated = sub.addTransaction(blockInfo, tx, transfers, std::move(messages));
     contains = updated;
   }
 }

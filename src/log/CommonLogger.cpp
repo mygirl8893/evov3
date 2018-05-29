@@ -23,7 +23,7 @@ std::string formatPattern(const std::string& pattern, const std::string& categor
         s << time.time_of_day();
         break;
       case 'L':
-        s << std::setw(7) << std::left << ILogger::LEVEL_NAMES[level];
+        s << ILogger::LEVEL_NAMES[level];
         break;
       default:
         s << *p;

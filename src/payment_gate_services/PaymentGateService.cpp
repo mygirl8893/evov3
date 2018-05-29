@@ -1,4 +1,4 @@
-#include "PaymentGateService.h"
+#include "payment_gate_services/PaymentGateService.h"
 
 #include <future>
 
@@ -11,8 +11,8 @@
 #include "core/Core.h"
 #include "protocol/CryptoNoteProtocolHandler.h"
 #include "p2p/NetNode.h"
+#include "payment_gate/WalletFactory.h"
 #include <System/Context.h>
-#include "wallet/WalletGreen.h"
 
 #ifdef ERROR
 #undef ERROR
@@ -36,26 +36,12 @@ void stopSignalHandler(PaymentGateService* pg) {
   pg->stop();
 }
 
-PaymentGateService::PaymentGateService() :
-  dispatcher(nullptr),
-  stopEvent(nullptr),
-  config(),
-  service(nullptr),
-  logger(),
-  currencyBuilder(logger),
-  fileLogger(Logging::TRACE),
-  consoleLogger(Logging::INFO) {
-  consoleLogger.setPattern("%D %T %L ");
-  fileLogger.setPattern("%D %T %L ");
-}
-
 bool PaymentGateService::init(int argc, char** argv) {
   if (!config.init(argc, argv)) {
     return false;
   }
 
   logger.setMaxLevel(static_cast<Logging::Level>(config.gateConfiguration.logLevel));
-  logger.setPattern("%D %T %L ");
   logger.addLogger(consoleLogger);
 
   Logging::LoggerRef log(logger, "main");
@@ -118,7 +104,7 @@ void PaymentGateService::run() {
 void PaymentGateService::stop() {
   Logging::LoggerRef log(logger, "stop");
 
-  log(Logging::INFO, Logging::BRIGHT_WHITE) << "Stop signal caught";
+  log(Logging::INFO) << "Stop signal caught";
 
   if (dispatcher != nullptr) {
     dispatcher->remoteSpawn([&]() {
@@ -218,9 +204,9 @@ void PaymentGateService::runWalletService(const CryptoNote::Currency& currency, 
     config.gateConfiguration.containerPassword
   };
 
-  std::unique_ptr<CryptoNote::WalletGreen> wallet(new CryptoNote::WalletGreen(*dispatcher, currency, node, logger));
+  std::unique_ptr<CryptoNote::IWallet> wallet (WalletFactory::createWallet(currency, node, *dispatcher));
 
-  service = new PaymentService::WalletService(currency, *dispatcher, node, *wallet, *wallet, walletConfiguration, logger);
+  service = new PaymentService::WalletService(currency, *dispatcher, node, *wallet, walletConfiguration, logger);
   std::unique_ptr<PaymentService::WalletService> serviceGuard(service);
   try {
     service->init();
@@ -238,9 +224,8 @@ void PaymentGateService::runWalletService(const CryptoNote::Currency& currency, 
     }
   } else {
     PaymentService::PaymentServiceJsonRpcServer rpcServer(*dispatcher, *stopEvent, *service, logger);
-    rpcServer.start(config.gateConfiguration.bindAddress, config.gateConfiguration.bindPort);
-
-    Logging::LoggerRef(logger, "PaymentGateService")(Logging::INFO, Logging::BRIGHT_WHITE) << "JSON-RPC server stopped, stopping wallet service...";
+    rpcServer.start(config.gateConfiguration.bindAddress, config.gateConfiguration.bindPort,
+      config.gateConfiguration.rpcUser, config.gateConfiguration.rpcPassword);
 
     try {
       service->saveWallet();

@@ -4,7 +4,7 @@
 #include <boost/program_options/variables_map.hpp>
 
 #include "p2p/NetNodeCommon.h"
-#include "CryptoNoteProtocolHandlerCommon.h"
+#include "protocol/CryptoNoteProtocolHandlerCommon.h"
 #include "Currency.h"
 #include "trans/TransactionPool.h"
 #include "block/Blockchain.h"
@@ -15,7 +15,7 @@
 #include "ObserverManager.h"
 
 #include "System/Dispatcher.h"
-#include "core/MessageQueue.h"
+#include "MessageQueue.h"
 #include "block/BlockchainMessages.h"
 
 #include <log/LoggerMessage.h>
@@ -35,7 +35,7 @@ namespace CryptoNote {
      virtual bool handle_incoming_tx(const BinaryArray& tx_blob, tx_verification_context& tvc, bool keeped_by_block) override; //Deprecated. Should be removed with CryptoNoteProtocolHandler.
      bool handle_incoming_block_blob(const BinaryArray& block_blob, block_verification_context& bvc, bool control_miner, bool relay_block) override;
      virtual i_cryptonote_protocol* get_protocol() override {return m_pprotocol;}
-     const Currency& currency() const { return m_currency; }
+     virtual const Currency& currency() const override { return m_currency; }
 
      //-------------------- IMinerHandler -----------------------
      virtual bool handle_block_found(Block& b) override;
@@ -56,7 +56,7 @@ namespace CryptoNote {
      virtual bool getBackwardBlocksSizes(uint32_t fromHeight, std::vector<size_t>& sizes, size_t count) override;
      virtual bool getBlockSize(const Crypto::Hash& hash, size_t& size) override;
      virtual bool getAlreadyGeneratedCoins(const Crypto::Hash& hash, uint64_t& generatedCoins) override;
-     virtual bool getBlockReward(uint8_t blockMajorVersion, size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee,
+     virtual bool getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins, uint64_t fee, uint32_t height,
                                  uint64_t& reward, int64_t& emissionChange) override;
      virtual bool scanOutputkeysForIndices(const KeyInput& txInToKey, std::list<std::pair<Crypto::Hash, size_t>>& outputReferences) override;
      virtual bool getBlockDifficulty(uint32_t height, difficulty_type& difficulty) override;
@@ -69,7 +69,7 @@ namespace CryptoNote {
      virtual bool getTransactionsByPaymentId(const Crypto::Hash& paymentId, std::vector<Transaction>& transactions) override;
      virtual bool getOutByMSigGIndex(uint64_t amount, uint64_t gindex, MultisignatureOutput& out) override;
      virtual std::unique_ptr<IBlock> getBlock(const Crypto::Hash& blocksId) override;
-     virtual bool handleIncomingTransaction(const Transaction& tx, const Crypto::Hash& txHash, size_t blobSize, tx_verification_context& tvc, bool keptByBlock) override;
+     virtual bool handleIncomingTransaction(const Transaction& tx, const Crypto::Hash& txHash, size_t blobSize, tx_verification_context& tvc, bool keptByBlock, uint32_t height) override;
      virtual std::error_code executeLocked(const std::function<std::error_code()>& func) override;
      
      virtual bool addMessageQueue(MessageQueue<BlockchainMessage>& messageQueue) override;
@@ -101,6 +101,8 @@ namespace CryptoNote {
 
      bool get_alternative_blocks(std::list<Block>& blocks);
      size_t get_alternative_blocks_count();
+     uint64_t coinsEmittedAtHeight(uint64_t height);
+     uint64_t difficultyAtHeight(uint64_t height);
 
      void set_cryptonote_protocol(i_cryptonote_protocol* pprotocol);
      void set_checkpoints(Checkpoints&& chk_pts);
@@ -133,16 +135,20 @@ namespace CryptoNote {
 
      uint64_t getNextBlockDifficulty();
      uint64_t getTotalGeneratedAmount();
+     uint64_t fullDepositAmount() const;
+     uint64_t fullDepositInterest() const;
+     uint64_t depositAmountAtHeight(size_t height) const;
+     uint64_t depositInterestAtHeight(size_t height) const;
 
    private:
-     bool add_new_tx(const Transaction& tx, const Crypto::Hash& tx_hash, size_t blob_size, tx_verification_context& tvc, bool keeped_by_block);
+     bool add_new_tx(const Transaction& tx, const Crypto::Hash& tx_hash, size_t blob_size, tx_verification_context& tvc, bool keeped_by_block, uint32_t height);
      bool load_state_data();
      bool parse_tx_from_blob(Transaction& tx, Crypto::Hash& tx_hash, Crypto::Hash& tx_prefix_hash, const BinaryArray& blob);
      bool handle_incoming_block(const Block& b, block_verification_context& bvc, bool control_miner, bool relay_block);
 
      bool check_tx_syntax(const Transaction& tx);
      //check correct values, amounts and all lightweight checks not related with database
-     bool check_tx_semantic(const Transaction& tx, bool keeped_by_block);
+     bool check_tx_semantic(const Transaction& tx, bool keeped_by_block, uint32_t &height);
      //check if tx already in memory pool or in main blockchain
 
      bool is_key_image_spent(const Crypto::KeyImage& key_im);

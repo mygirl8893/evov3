@@ -21,6 +21,8 @@ struct Configuration {
 
   std::string bindAddress;
   uint16_t bindPort;
+  std::string rpcUser;
+  std::string rpcPassword;
 
   std::string containerFile;
   std::string containerPassword;

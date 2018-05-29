@@ -25,8 +25,8 @@ namespace CryptoNote
 {
   class Currency;
 
-  class CryptoNoteProtocolHandler : 
-    public i_cryptonote_protocol, 
+  class CryptoNoteProtocolHandler :
+    public i_cryptonote_protocol,
     public ICryptoNoteProtocolQuery
   {
   public:
@@ -79,7 +79,6 @@ namespace CryptoNote
     Logging::LoggerRef logger;
 
   private:
-
     System::Dispatcher& m_dispatcher;
     ICore& m_core;
     const Currency& m_currency;

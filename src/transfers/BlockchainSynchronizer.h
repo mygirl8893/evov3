@@ -11,8 +11,6 @@
 #include <atomic>
 #include <future>
 
-#include "log/LoggerRef.h"
-
 namespace CryptoNote {
 
 class BlockchainSynchronizer :
@@ -20,7 +18,7 @@ class BlockchainSynchronizer :
   public INodeObserver {
 public:
 
-  BlockchainSynchronizer(INode& node, Logging::ILogger& logger, const Crypto::Hash& genesisBlockHash);
+  BlockchainSynchronizer(INode& node, const Crypto::Hash& genesisBlockHash);
   ~BlockchainSynchronizer();
 
   // IBlockchainSynchronizer
@@ -75,8 +73,7 @@ private:
     idle = 0,           //DO
     poolSync = 1,       //NOT
     blockchainSync = 2, //REORDER
-    deleteOldTxs = 3,   //!!!
-    stopped = 4         //!!!
+    stopped = 3         //!!!
   };
 
   enum class UpdateConsumersResult {
@@ -86,7 +83,6 @@ private:
   };
 
   //void startSync();
-  void removeOutdatedTransactions();
   void startPoolSync();
   void startBlockchainSync();
 
@@ -113,7 +109,6 @@ private:
 
   typedef std::map<IBlockchainConsumer*, std::shared_ptr<SynchronizationState>> ConsumersMap;
 
-  mutable Logging::LoggerRef m_logger;
   ConsumersMap m_consumers;
   INode& m_node;
   const Crypto::Hash m_genesisBlockHash;

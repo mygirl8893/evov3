@@ -77,6 +77,7 @@ namespace CryptoNote
     bool set_log(const std::vector<std::string> &args);
 
     bool ask_wallet_create_if_needed();
+    std::string resolveAlias(const std::string& aliasUrl);
 
     void printConnectionError() const;
 
@@ -142,6 +143,11 @@ namespace CryptoNote
     std::string m_daemon_address;
     std::string m_daemon_host;
     uint16_t m_daemon_port;
+	
+	//lwma
+	uint32_t m_mandatoryTransaction;
+	uint16_t m_minMixin;
+	uint8_t  m_mandatoryMixinBlockVersion;
 
     std::string m_wallet_file;
 
