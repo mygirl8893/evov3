@@ -27,6 +27,7 @@ public:
 
   uint64_t moneySupply() const { return m_moneySupply; }
   unsigned int emissionSpeedFactor() const { return m_emissionSpeedFactor; }
+  size_t cryptonoteCoinVersion() const { return m_cryptonoteCoinVersion; }
   //uint64_t genesisBlockReward() const { return m_genesisBlockReward; }
 
   size_t rewardBlocksWindow() const { return m_rewardBlocksWindow; }
@@ -51,6 +52,7 @@ public:
   uint64_t difficultyTarget() const { return m_difficultyTarget; }
   size_t difficultyWindow() const { return m_difficultyWindow; }
   size_t difficultyBlocksCount() const { return m_difficultyWindow; }
+  size_t difficultyBlocksCount2() const { return CryptoNote::parameters::DIFFICULTY_WINDOW_V2; }
 
   uint64_t depositMinAmount() const { return m_depositMinAmount; }
   uint32_t depositMinTerm() const { return m_depositMinTerm; }
@@ -149,6 +151,7 @@ private:
 
   uint64_t m_moneySupply;
   unsigned int m_emissionSpeedFactor;
+  size_t m_cryptonoteCoinVersion;
   //uint64_t m_genesisBlockReward;
 
   size_t m_rewardBlocksWindow;
@@ -248,6 +251,7 @@ public:
 
   CurrencyBuilder& moneySupply(uint64_t val) { m_currency.m_moneySupply = val; return *this; }
   CurrencyBuilder& emissionSpeedFactor(unsigned int val);
+  CurrencyBuilder& cryptonoteCoinVersion(size_t val) { m_currency.m_cryptonoteCoinVersion = val; return *this; }
   //CurrencyBuilder& genesisBlockReward(uint64_t val) { m_currency.m_genesisBlockReward = val; return *this; }
 
   CurrencyBuilder& rewardBlocksWindow(size_t val) { m_currency.m_rewardBlocksWindow = val; return *this; }

@@ -3,3 +3,9 @@ Release notes 3.0
 - upload to github
 - added change for files
 - reset work
+
+Release notes 3.0.1
+
+- change cores
+- update setting
+- update rpc and blockindicies

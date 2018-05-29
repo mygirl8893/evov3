@@ -75,7 +75,8 @@ namespace CryptoNote {
     difficulty_type getDifficultyForNextBlock();
     uint64_t getBlockTimestamp(uint32_t height);
     uint64_t getCoinsInCirculation();
-    uint8_t get_block_major_version_for_height(uint64_t height) const;
+    uint8_t getBlockMajorVersionForHeight(uint32_t height) const;
+    uint8_t blockMajorVersion;
     bool addNewBlock(const Block& bl_, block_verification_context& bvc);
     bool resetAndSetGenesisBlock(const Block& b);
     bool haveBlock(const Crypto::Hash& id);

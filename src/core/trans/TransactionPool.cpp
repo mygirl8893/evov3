@@ -362,6 +362,9 @@ namespace CryptoNote {
         << "max_used_block_id: " << txd.maxUsedBlock.id << std::endl
         << "last_failed_height: " << txd.lastFailedBlock.height << std::endl
         << "last_failed_id: " << txd.lastFailedBlock.id << std::endl
+	<< "amount_out: " << get_outs_money_amount(txd.tx) << std::endl
+        << "fee_atomic_units: " << txd.fee << std::endl
+        << "received_timestamp: " << txd.receiveTime << std::endl
         << "received: " << std::ctime(&txd.receiveTime);
 
       auto ttlIt = m_ttlIndex.find(txd.id);

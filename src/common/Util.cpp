@@ -290,7 +290,7 @@ std::string get_nix_version_display_string()
 #ifdef WIN32
     // Windows
     // config_folder = get_special_folder_path(CSIDL_APPDATA, true) + "/" + CryptoNote::CRYPTONOTE_NAME;
-    config_folder = get_special_folder_path(CSIDL_COMMON_APPDATA, true) + "/" + CryptoNote::CRYPTONOTE_NAME;
+    config_folder = get_special_folder_path(CSIDL_APPDATA, true) + "/" + CryptoNote::CRYPTONOTE_NAME;
 #else
     std::string pathRet;
     char* pszHome = getenv("HOME");

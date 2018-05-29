@@ -672,10 +672,9 @@ difficulty_type Blockchain::getDifficultyForNextBlock() {
   }
 
   uint32_t block_index = m_blocks.size();
-  uint8_t block_major_version = get_block_major_version_for_height(block_index + 1);
+  uint8_t block_major_version = getBlockMajorVersionForHeight(block_index + 1);
 
-  return m_currency.nextDifficulty(block_major_version, block_index,
-    timestamps, commulative_difficulties);
+  return m_currency.nextDifficulty(block_major_version, block_index, timestamps, commulative_difficulties);
 }
 
 uint64_t Blockchain::getBlockTimestamp(uint32_t height) {
@@ -709,7 +708,7 @@ difficulty_type Blockchain::difficultyAtHeight(uint64_t height) {
   return current.cumulative_difficulty - previous.cumulative_difficulty;
 }
 
-uint8_t Blockchain::get_block_major_version_for_height(uint64_t height) const {
+uint8_t Blockchain::getBlockMajorVersionForHeight(uint32_t height) const {
   return height > m_upgradeDetectorV3.upgradeHeightv3() ? m_upgradeDetectorV3.targetVersion() : BLOCK_MAJOR_VERSION_3;
 }
 
@@ -864,7 +863,7 @@ difficulty_type Blockchain::get_next_difficulty_for_alternative_chain(const std:
   }
 
   uint32_t block_index = m_blocks.size();
-  uint8_t block_major_version = get_block_major_version_for_height(block_index + 1);
+  uint8_t block_major_version = getBlockMajorVersionForHeight(block_index + 1);
 
   return m_currency.nextDifficulty(block_major_version, block_index,
     timestamps, commulative_difficulties);
@@ -1702,7 +1701,7 @@ bool Blockchain::check_block_timestamp(std::vector<uint64_t> timestamps, const B
 
 bool Blockchain::checkBlockVersion(const Block& b, const Crypto::Hash& blockHash) {
   uint64_t height = get_block_height(b);
-  const uint8_t expectedBlockVersion = get_block_major_version_for_height(height);
+  const uint8_t expectedBlockVersion = getBlockMajorVersionForHeight(height);
   if (b.majorVersion != expectedBlockVersion) {
     logger(INFO, BRIGHT_WHITE) << "Block " << blockHash << " has wrong major version: " << static_cast<int>(b.majorVersion) <<
       ", at height " << height << " expected version is " << static_cast<int>(expectedBlockVersion);

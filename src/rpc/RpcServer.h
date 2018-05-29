@@ -18,6 +18,8 @@ public:
   RpcServer(System::Dispatcher& dispatcher, Logging::ILogger& log, core& c, NodeServer& p2p, const ICryptoNoteProtocolQuery& protocolQuery);
 
   typedef std::function<bool(RpcServer*, const HttpRequest& request, HttpResponse& response)> HandlerFunction;
+  bool restrictRPC(const bool is_resctricted);
+  bool enableCors(const std::string domain);
 
 private:
 
@@ -76,6 +78,8 @@ private:
   core& m_core;
   NodeServer& m_p2p;
   const ICryptoNoteProtocolQuery& m_protocolQuery;
+  bool m_restricted_rpc;
+  std::string m_cors_domain;
 };
 
 }

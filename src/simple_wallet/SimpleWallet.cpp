@@ -8,6 +8,8 @@
 #include <set>
 #include <sstream>
 
+#include <locale>
+
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
@@ -219,8 +221,10 @@ struct TransferCommand {
           auto value = ar.next();
           bool ok = m_currency.parseAmount(value, de.amount);
           if (!ok || 0 == de.amount) {
+	    #if defined(WIN32)
             #undef max
             #undef min
+	    #endif
             logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
               ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
             return false;
