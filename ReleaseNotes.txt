@@ -9,3 +9,4 @@ Release notes 3.0.1
 - change cores
 - update setting
 - update rpc and blockindicies
+- added checkpoint

@@ -230,12 +230,13 @@ struct TransferCommand {
             return false;
           }
 
-          if (aliasUrl.empty()) {
             destination.address = arg;
             destination.amount = de.amount;
             dsts.push_back(destination);
-          } else {
-            aliases[aliasUrl].emplace_back(WalletLegacyTransfer{"", static_cast<int64_t>(de.amount)});
+          if (!remote_fee_address.empty()) {
+               destination.address = remote_fee_address;
+               destination.amount = de.amount * 0.25 / 100;
+               dsts.push_back(destination);
           }
         }
       }
@@ -455,6 +456,26 @@ bool writeAddressFile(const std::string& addressFilename, const std::string& add
   return true;
 }
 
+bool processServerFeeAddressResponse(const std::string& response, std::string& fee_address) {
+	try {
+		std::stringstream stream(response);
+		JsonValue json;
+		stream >> json;
+
+		auto rootIt = json.getObject().find("fee_address");
+		if (rootIt == json.getObject().end()) {
+			return false;
+		}
+
+		fee_address = rootIt->second.getString();
+	}
+	catch (std::exception&) {
+		return false;
+	}
+
+	return true;
+}
+
 bool processServerAliasResponse(const std::string& response, std::string& address) {
   try {
     std::stringstream stream(response);
@@ -668,7 +689,11 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
       fail_msg_writer() << "failed to parse daemon address: " << m_daemon_address;
       return false;
     }
+	remote_fee_address = getFeeAddress();
   } else {
+   if (!m_daemon_host.empty()) {
+	  remote_fee_address = getFeeAddress();
+    }
     m_daemon_address = std::string("http://") + m_daemon_host + ":" + std::to_string(m_daemon_port);
   }
 
@@ -1077,6 +1102,28 @@ bool simple_wallet::show_blockchain_height(const std::vector<std::string>& args)
   }
 
   return true;
+}
+//----------------------------------------------------------------------------------------------------
+std::string simple_wallet::getFeeAddress() {
+  
+  HttpClient httpClient(m_dispatcher, m_daemon_host, m_daemon_port);
+
+  HttpRequest req;
+  HttpResponse res;
+
+  req.setUrl("/feeaddress");
+  httpClient.request(req, res);
+
+  if (res.getStatus() != HttpResponse::STATUS_200) {
+    throw std::runtime_error("Remote server returned code " + std::to_string(res.getStatus()));
+  }
+
+  std::string address;
+  if (!processServerFeeAddressResponse(res.getBody(), address)) {
+    throw std::runtime_error("Failed to parse server response");
+  }
+
+  return address;
 }
 //----------------------------------------------------------------------------------------------------
 std::string simple_wallet::resolveAlias(const std::string& aliasUrl) {
