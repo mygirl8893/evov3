@@ -18,7 +18,7 @@ const uint64_t CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE           = 10;
 
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 11;
 
-const uint64_t MONEY_SUPPLY                                  = UINT64_C(21000000000);
+const uint64_t MONEY_SUPPLY                                  = UINT64_C(500);
 
 //LWMA
 const size_t   MIN_MIXIN                          	     = 0;
@@ -27,7 +27,7 @@ const uint32_t MIXIN_START_HEIGHT                  	     = 0;
 const uint32_t MANDATORY_TRANSACTION                         = 0;
 const uint32_t KILL_HEIGHT                                   = 0;
 const uint64_t TAIL_EMISSION_REWARD                          = 500;
-const size_t   CRYPTONOTE_COIN_VERSION                       = 2;
+const size_t   CRYPTONOTE_COIN_VERSION                       = 1;
 
 const size_t   CRYPTONOTE_REWARD_BLOCKS_WINDOW               = 100;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE     = 1000000; //size of block (bytes) after which reward for block calculated using block size
@@ -102,7 +102,7 @@ const uint64_t MAX_BLOCK_REWARD                              = (UINT64_C(10) * p
 const uint64_t REWARD_INCREASE_INTERVAL                      = (UINT64_C(264000));
 
 const char     CRYPTONOTE_NAME[]                             = "cryptonote";
-const char     GENESIS_COINBASE_TX_HEX[]                     = "010a01ff0001ecf104029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121015c2ef39bb3bf9c43a6dd14bd6846c8a897f66f34427862a906c34af7f1f3e2d6";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "020a01ff0001f403029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101baffe34bbc4551eac72ad8ecb44ea6eaf1f7c770c14d494dcaa8f7dc866526bf";
 const uint32_t GENESIS_NONCE                                 = 70;
 const uint64_t GENESIS_TIMESTAMP                             = 1526949013;
 
@@ -119,8 +119,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        = 10000; // by defa
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            = 128; // by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         = 1000;
 
-const int      P2P_DEFAULT_PORT                              = 50501;
-const int      RPC_DEFAULT_PORT                              = 50551;
+const int      P2P_DEFAULT_PORT                              = 60045;
+const int      RPC_DEFAULT_PORT                              = 60046;
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                = 1000;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 = 5000;
@@ -135,10 +135,10 @@ const uint32_t P2P_DEFAULT_CONNECTION_TIMEOUT                = 5000; // 5 second
 const uint32_t P2P_DEFAULT_PING_CONNECTION_TIMEOUT           = 2000; // 2 seconds
 const uint64_t P2P_DEFAULT_INVOKE_TIMEOUT                    = 60 * 2 * 1000; // 2 minutes
 const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 seconds
-const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "F29507CA55455F37A3B783EE2C5123B8B6A34A0C5CAAE050922C6254161480C1";
+const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "F29507CA78955F37A3B783EE2C5123B8B6A34A0C5CAAE050922C62541614G090";
 
 const std::initializer_list<const char*> SEED_NODES = {
-  "10.0.2.15:50501",
+  "0.0.0.0:60045",
 };
 
 struct CheckpointData {
@@ -153,7 +153,8 @@ __attribute__((unused))
 // You may add here other checkpoints using the following format:
 // {<block height>, "<block hash>"},
 const std::initializer_list<CheckpointData> CHECKPOINTS = {
-  //{ 3700, "cbce7c37dbad257d29a3bfa93ec1f7b92434b9b806d40d01cb04d0ad2e451735" },
+  //{ 1, "1e844d0b4099634cc69fca8778c70926c21859947361a2c482c6824e6c72e8c2" },
+  //{ 7, "723c48735906a804c2c7fa01f3282a1a9d06c5d004b870f136f920d6ddc5c8a6" }
 };
 
 } // CryptoNote

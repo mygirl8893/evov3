@@ -453,7 +453,7 @@ bool Blockchain::init(const std::string& config_folder, bool load_existing) {
     }
   }
 
-  if (!m_upgradeDetectorV3.init()) {
+  if (!m_upgradeDetectorV2.init()) {
     logger(ERROR, BRIGHT_RED) << "Failed to initialize upgrade detector";
     return false;
   }
@@ -709,7 +709,7 @@ difficulty_type Blockchain::difficultyAtHeight(uint64_t height) {
 }
 
 uint8_t Blockchain::getBlockMajorVersionForHeight(uint32_t height) const {
-  return height > m_upgradeDetectorV3.upgradeHeightv3() ? m_upgradeDetectorV3.targetVersion() : BLOCK_MAJOR_VERSION_3;
+  return height > m_upgradeDetectorV2.upgradeHeightv2() ? m_upgradeDetectorV2.targetVersion() : BLOCK_MAJOR_VERSION_1;
 }
 
 bool Blockchain::rollback_blockchain_switching(std::list<Block> &original_chain, size_t rollback_height) {
@@ -1985,7 +1985,7 @@ bool Blockchain::pushBlock(const Block& blockData, const std::vector<Transaction
 
   bvc.m_added_to_main_chain = true;
 
-  m_upgradeDetectorV3.blockPushed();
+  m_upgradeDetectorV2.blockPushed();
   update_next_comulative_size_limit();
 
   return true;
@@ -2075,7 +2075,7 @@ void Blockchain::popBlock(const Crypto::Hash& blockHash) {
 
   assert(m_blockIndex.size() == m_blocks.size());
 
-  m_upgradeDetectorV3.blockPopped();
+  m_upgradeDetectorV2.blockPopped();
 }
 
 bool Blockchain::pushTransaction(BlockEntry& block, const Crypto::Hash& transactionHash, TransactionIndex transactionIndex) {
