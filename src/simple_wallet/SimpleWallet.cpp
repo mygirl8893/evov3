@@ -263,7 +263,7 @@ JsonValue buildLoggerConfiguration(Level level, const std::string& logfile) {
   JsonValue& consoleLogger = cfgLoggers.pushBack(JsonValue::OBJECT);
   consoleLogger.insert("type", "console");
   consoleLogger.insert("level", static_cast<int64_t>(TRACE));
-  consoleLogger.insert("pattern", "");
+  consoleLogger.insert("pattern", "%D %T %L ");
 
   JsonValue& fileLogger = cfgLoggers.pushBack(JsonValue::OBJECT);
   fileLogger.insert("type", "file");
@@ -457,23 +457,23 @@ bool writeAddressFile(const std::string& addressFilename, const std::string& add
 }
 
 bool processServerFeeAddressResponse(const std::string& response, std::string& fee_address) {
-	try {
-		std::stringstream stream(response);
-		JsonValue json;
-		stream >> json;
+ try {
+  std::stringstream stream(response);
+  JsonValue json;
+  stream >> json;
 
-		auto rootIt = json.getObject().find("fee_address");
-		if (rootIt == json.getObject().end()) {
-			return false;
-		}
+  auto rootIt = json.getObject().find("fee_address");
+  if (rootIt == json.getObject().end()) {
+   return false;
+  }
 
-		fee_address = rootIt->second.getString();
-	}
-	catch (std::exception&) {
-		return false;
-	}
+  fee_address = rootIt->second.getString();
+  }
+  catch (std::exception&) {
+   return false;
+  }
 
-	return true;
+ return true;
 }
 
 bool processServerAliasResponse(const std::string& response, std::string& address) {
@@ -692,7 +692,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
 	remote_fee_address = getFeeAddress();
   } else {
    if (!m_daemon_host.empty()) {
-	  remote_fee_address = getFeeAddress();
+	remote_fee_address = getFeeAddress();
     }
     m_daemon_address = std::string("http://") + m_daemon_host + ":" + std::to_string(m_daemon_port);
   }

@@ -94,6 +94,7 @@ RpcServer::RpcServer(System::Dispatcher& dispatcher, Logging::ILogger& log, core
 }
 
 void RpcServer::processRequest(const HttpRequest& request, HttpResponse& response) {
+  logger(TRACE) << "RPC request came: \n" << request << std::endl;
   auto url = request.getUrl();
 
   auto it = s_handlers.find(url);
@@ -115,7 +116,6 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
 
   using namespace JsonRpc;
 
-  response.addHeader("Access-Control-Allow-Origin", "*");
   response.addHeader("Content-Type", "application/json");
   if (!m_cors_domain.empty()) {
 	response.addHeader("Access-Control-Allow-Origin", m_cors_domain);
@@ -130,10 +130,6 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
     jsonResponse.setId(jsonRequest.getId()); // copy id
 
     static std::unordered_map<std::string, RpcServer::RpcHandler<JsonMemberMethod>> jsonRpcHandlers = {
-      { "f_blocks_list_json", { makeMemberMethod(&RpcServer::f_on_blocks_list_json), false } },
-      { "f_block_json", { makeMemberMethod(&RpcServer::f_on_block_json), false } },
-      { "f_transaction_json", { makeMemberMethod(&RpcServer::f_on_transaction_json), false } },
-      { "f_on_transactions_pool_json", { makeMemberMethod(&RpcServer::f_on_transactions_pool_json), false } },
      // { "f_get_blockchain_settings", { makeMemberMethod(&RpcServer::f_on_get_blockchain_settings), true } },
       { "getblockcount", { makeMemberMethod(&RpcServer::on_getblockcount), true } },
       { "on_getblockhash", { makeMemberMethod(&RpcServer::on_getblockhash), false } },
@@ -142,7 +138,11 @@ bool RpcServer::processJsonRpcRequest(const HttpRequest& request, HttpResponse& 
       { "submitblock", { makeMemberMethod(&RpcServer::on_submitblock), false } },
       { "getlastblockheader", { makeMemberMethod(&RpcServer::on_get_last_block_header), false } },
       { "getblockheaderbyhash", { makeMemberMethod(&RpcServer::on_get_block_header_by_hash), false } },
-      { "getblockheaderbyheight", { makeMemberMethod(&RpcServer::on_get_block_header_by_height), false } }
+      { "getblockheaderbyheight", { makeMemberMethod(&RpcServer::on_get_block_header_by_height), false } },
+      { "f_blocks_list_json", { makeMemberMethod(&RpcServer::f_on_blocks_list_json), false } },
+      { "f_block_json", { makeMemberMethod(&RpcServer::f_on_block_json), false } },
+      { "f_transaction_json", { makeMemberMethod(&RpcServer::f_on_transaction_json), false } },
+      { "f_on_transactions_pool_json", { makeMemberMethod(&RpcServer::f_on_transactions_pool_json), false } }
     };
 
     auto it = jsonRpcHandlers.find(jsonRequest.getMethod());
@@ -393,7 +393,8 @@ bool RpcServer::on_send_raw_tx(const COMMAND_RPC_SEND_RAW_TX::request& req, COMM
     res.status = "Failed";
     return true;
   }
-
+  Crypto::Hash transactionHash = Crypto::cn_fast_hash(tx_blob.data(), tx_blob.size());
+  logger(DEBUGGING) << "transaction " << transactionHash << " came in on_send_raw_tx";
   tx_verification_context tvc = boost::value_initialized<tx_verification_context>();
   if (!m_core.handle_incoming_tx(tx_blob, tvc, false))
   {
