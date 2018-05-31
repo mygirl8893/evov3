@@ -8,9 +8,9 @@
 #include "common/SignalHandler.h"
 #include "common/PathTools.h"
 #include "crypto/hash.h"
+#include "base/CryptoNoteTools.h"
 #include "core/Core.h"
 #include "core/CoreConfig.h"
-#include "base/CryptoNoteTools.h"
 #include "core/Currency.h"
 #include "core/mine/MinerConfig.h"
 #include "protocol/CryptoNoteProtocolHandler.h"
@@ -20,7 +20,6 @@
 #include "rpc/RpcServerConfig.h"
 #include "version.h"
 
-#include "log/ConsoleLogger.h"
 #include <log/LoggerManager.h>
 
 #if defined(WIN32)
@@ -52,16 +51,12 @@ namespace
 
 bool command_line_preprocessor(const boost::program_options::variables_map& vm, LoggerRef& logger);
 
-void print_genesis_tx_hex() {
-  Logging::ConsoleLogger logger;
-  CryptoNote::Transaction tx = CryptoNote::CurrencyBuilder(logger).generateGenesisTransaction();
-  CryptoNote::BinaryArray txb = CryptoNote::toBinaryArray(tx);
-  std::string tx_hex = Common::toHex(txb);
-
-  std::cout << "Insert this line into your coin configuration file as is: " << std::endl;
-  std::cout << "const char GENESIS_COINBASE_TX_HEX[] = \"" << tx_hex << "\";" << std::endl;
-
-  return;
+void print_genesis_tx_hex(const po::variables_map& vm, LoggerManager& logManager) {
+  CryptoNote::Transaction tx = CryptoNote::CurrencyBuilder(logManager).generateGenesisTransaction();
+  std::string tx_hex = Common::toHex(CryptoNote::toBinaryArray(tx));
+  std::cout << "Add this line into your coin configuration file as is: " << std::endl;
+  std::cout << "\"GENESIS_COINBASE_TX_HEX\":\"" << tx_hex << "\"," << std::endl;
+   return;
 }
 
 // void print_genesis_tx_hex(const po::variables_map& vm) {
@@ -121,7 +116,7 @@ JsonValue buildLoggerConfiguration(Level level, const std::string& logfile) {
   JsonValue& consoleLogger = cfgLoggers.pushBack(JsonValue::OBJECT);
   consoleLogger.insert("type", "console");
   consoleLogger.insert("level", static_cast<int64_t>(TRACE));
-  consoleLogger.insert("pattern", "%T %L ");
+  consoleLogger.insert("pattern", "%D %T %L ");
 
   return loggerConfiguration;
 }
@@ -199,12 +194,6 @@ int main(int argc, char* argv[])
         return false;
       }
 
-      if (command_line::get_arg(vm, arg_print_genesis_tx)) {
-        //print_genesis_tx_hex(vm);
-		    print_genesis_tx_hex();
-        return false;
-      }
-
       std::string data_dir = command_line::get_arg(vm, command_line::arg_data_dir);
       std::string config = command_line::get_arg(vm, arg_config_file);
 
@@ -220,6 +209,10 @@ int main(int argc, char* argv[])
       }
 
       po::notify(vm);
+      if (command_line::get_arg(vm, arg_print_genesis_tx)) {
+        print_genesis_tx_hex(vm, logManager);
+        return false;
+      }
       return true;
     });
 
