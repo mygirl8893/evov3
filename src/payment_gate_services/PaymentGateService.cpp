@@ -36,12 +36,26 @@ void stopSignalHandler(PaymentGateService* pg) {
   pg->stop();
 }
 
+PaymentGateService::PaymentGateService() :
+  dispatcher(nullptr),
+  stopEvent(nullptr),
+  config(),
+  service(nullptr),
+  logger(),
+  currencyBuilder(logger),
+  fileLogger(Logging::TRACE),
+  consoleLogger(Logging::INFO) {
+  consoleLogger.setPattern("%D %T %L ");
+  fileLogger.setPattern("%D %T %L ");
+}
+
 bool PaymentGateService::init(int argc, char** argv) {
   if (!config.init(argc, argv)) {
     return false;
   }
 
   logger.setMaxLevel(static_cast<Logging::Level>(config.gateConfiguration.logLevel));
+  logger.setPattern("%D %T %L ");
   logger.addLogger(consoleLogger);
 
   Logging::LoggerRef log(logger, "main");
@@ -104,7 +118,7 @@ void PaymentGateService::run() {
 void PaymentGateService::stop() {
   Logging::LoggerRef log(logger, "stop");
 
-  log(Logging::INFO) << "Stop signal caught";
+  log(Logging::INFO, Logging::BRIGHT_WHITE) << "Stop signal caught";
 
   if (dispatcher != nullptr) {
     dispatcher->remoteSpawn([&]() {
@@ -226,7 +240,7 @@ void PaymentGateService::runWalletService(const CryptoNote::Currency& currency, 
     PaymentService::PaymentServiceJsonRpcServer rpcServer(*dispatcher, *stopEvent, *service, logger);
     rpcServer.start(config.gateConfiguration.bindAddress, config.gateConfiguration.bindPort,
       config.gateConfiguration.rpcUser, config.gateConfiguration.rpcPassword);
-
+    Logging::LoggerRef(logger, "PaymentGateService")(Logging::INFO, Logging::BRIGHT_WHITE) << "JSON-RPC server stopped, stopping wallet service...";
     try {
       service->saveWallet();
     } catch (std::exception& ex) {

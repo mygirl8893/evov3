@@ -10,3 +10,5 @@ Release notes 3.0.1
 - update setting
 - update rpc and blockindicies
 - added checkpoint
+  a. checkpoint cores
+  b. checkpoint payment_gate
