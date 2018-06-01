@@ -135,6 +135,17 @@ uint64_t Currency::baseRewardFunction(uint64_t alreadyGeneratedCoins, uint32_t h
   return base_reward;
 }
 
+uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
+  if (majorVersion == BLOCK_MAJOR_VERSION_2) {
+    return m_upgradeHeightv2;
+  }
+  else if (majorVersion == BLOCK_MAJOR_VERSION_3) {
+    return m_upgradeHeightv3;
+  }else {
+    return static_cast<uint32_t>(-1);
+  }
+}
+
 bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins,
   uint64_t fee, uint32_t height, uint64_t& reward, int64_t& emissionChange) const {
 

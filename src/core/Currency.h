@@ -71,14 +71,13 @@ public:
   uint64_t mempoolTxFromAltBlockLiveTime() const { return m_mempoolTxFromAltBlockLiveTime; }
   uint64_t numberOfPeriodsToForgetTxDeletedFromPool() const { return m_numberOfPeriodsToForgetTxDeletedFromPool; }
 
-  uint32_t upgradeHeightv2() const { return m_upgradeHeightv2; }
-  uint32_t upgradeHeightv3() const { return m_upgradeHeightv3; }
+  uint32_t upgradeHeight(uint8_t majorVersion) const;
   unsigned int upgradeVotingThreshold() const { return m_upgradeVotingThreshold; }
   size_t upgradeVotingWindow() const { return m_upgradeVotingWindow; }
   size_t upgradeWindow() const { return m_upgradeWindow; }
   size_t minNumberVotingBlocks() const { return (m_upgradeVotingWindow * m_upgradeVotingThreshold + 99) / 100; }
-  uint64_t maxUpgradeDistance() const { return static_cast<uint64_t>(m_upgradeWindow); }
-  uint64_t calculateUpgradeHeight(uint64_t voteCompleteHeight) const { return voteCompleteHeight + m_upgradeWindow; }
+  uint32_t maxUpgradeDistance() const { return static_cast<uint32_t>(m_upgradeWindow); }
+  uint32_t calculateUpgradeHeight(uint32_t voteCompleteHeight) const { return voteCompleteHeight + m_upgradeWindow; }
 
   size_t transactionMaxSize() const { return m_transactionMaxSize; }
   size_t fusionTxMaxSize() const { return m_fusionTxMaxSize; }
@@ -198,8 +197,8 @@ private:
   uint32_t m_upgradeHeightv2;
   uint32_t m_upgradeHeightv3;
   unsigned int m_upgradeVotingThreshold;
-  size_t m_upgradeVotingWindow;
-  size_t m_upgradeWindow;
+  uint32_t m_upgradeVotingWindow;
+  uint32_t m_upgradeWindow;
 
   size_t m_transactionMaxSize;
   size_t m_fusionTxMaxSize;
