@@ -12,3 +12,10 @@ Release notes 3.0.1
 - added checkpoint
   a. checkpoint cores
   b. checkpoint payment_gate
+
+Release notes 3.0.2
+
+- checpoint added
+  - recover lost checkpoint
+  - updates new chain run and simple
+  - fixed chain
