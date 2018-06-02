@@ -14,6 +14,7 @@
 #include <System/TcpListener.h>
 
 #include "OnceInInterval.h"
+#include "core/Core.h"
 #include "protocol/CryptoNoteProtocolHandler.h"
 #include "common/CommandLine.h"
 #include "log/LoggerRef.h"
@@ -23,7 +24,6 @@
 #include "NetNodeCommon.h"
 #include "NetNodeConfig.h"
 #include "P2pProtocolDefinitions.h"
-#include "P2pNetworks.h"
 #include "PeerListManager.h"
 
 namespace System {

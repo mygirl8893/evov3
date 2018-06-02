@@ -297,15 +297,11 @@ namespace CryptoNote {
     bool pushBlock(const Block& blockData, block_verification_context& bvc, uint32_t height);
     bool pushBlock(const Block& blockData, const std::vector<Transaction>& transactions, block_verification_context& bvc);
     bool pushBlock(BlockEntry& block);
-    void popBlock();
+    void popBlock(const Crypto::Hash& blockHash);
     bool pushTransaction(BlockEntry& block, const Crypto::Hash& transactionHash, TransactionIndex transactionIndex);
     void popTransaction(const Transaction& transaction, const Crypto::Hash& transactionHash);
     void popTransactions(const BlockEntry& block, const Crypto::Hash& minerTransactionHash);
     bool validateInput(const MultisignatureInput& input, const Crypto::Hash& transactionHash, const Crypto::Hash& transactionPrefixHash, const std::vector<Crypto::Signature>& transactionSignatures);
-    bool checkCheckpoints(uint32_t& lastValidCheckpointHeight);
-    void rollbackBlockchainTo(uint32_t height);
-    void removeLastBlock();
-    bool checkUpgradeHeight(const UpgradeDetector& upgradeDetector);
 
     bool storeBlockchainIndices();
     bool loadBlockchainIndices();
@@ -377,4 +373,5 @@ namespace CryptoNote {
     return true;
   }
 }
+
 

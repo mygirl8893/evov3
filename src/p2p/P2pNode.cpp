@@ -9,6 +9,7 @@
 #include <System/TcpConnection.h>
 #include <System/TcpConnector.h>
 
+#include "core/Core.h"
 #include "common/StdInputStream.h"
 #include "common/StdOutputStream.h"
 #include "Serialization/BinaryInputStreamSerializer.h"
@@ -18,7 +19,6 @@
 #include "P2pConnectionProxy.h"
 #include "P2pContext.h"
 #include "P2pContextOwner.h"
-#include "P2pNetworks.h"
 
 using namespace Common;
 using namespace Logging;
