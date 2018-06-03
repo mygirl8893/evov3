@@ -72,7 +72,7 @@ public:
 
   virtual size_t createFusionTransaction(uint64_t threshold, uint64_t mixin);
   virtual bool isFusionTransaction(size_t transactionId) const override;
-  virtual IFusionManager::EstimateResult estimate(uint64_t threshold) const override;
+  virtual IFusionManager::EstimateResult estimate(uint64_t threshold) const;
 
 protected:
   void throwIfNotInitialized() const;

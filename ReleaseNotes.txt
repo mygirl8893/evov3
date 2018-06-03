@@ -19,3 +19,6 @@ Release notes 3.0.2
   - recover lost checkpoint
   - updates new chain run and simple
   - fixed chain
+- checkpoint 6/4/2018
+  - improve chain
+  - wallet log

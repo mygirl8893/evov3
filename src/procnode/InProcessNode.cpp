@@ -32,8 +32,8 @@ InProcessNode::InProcessNode(CryptoNote::ICore& core, CryptoNote::ICryptoNotePro
     state(NOT_INITIALIZED),
     core(core),
     protocol(protocol),
-    blockchainExplorerDataBuilder(core, protocol)
-{
+    blockchainExplorerDataBuilder(core, protocol) {
+   resetLastLocalBlockHeaderInfo();
 }
 
 InProcessNode::~InProcessNode() {
