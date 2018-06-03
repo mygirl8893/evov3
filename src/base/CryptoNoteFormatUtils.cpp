@@ -489,20 +489,12 @@ bool get_aux_block_header_hash(const Block& b, Hash& res) {
 
 bool get_block_longhash(cn_context &context, const Block& b, Hash& res) {
   BinaryArray bd;
-  if (b.majorVersion == BLOCK_MAJOR_VERSION_1) {
-    if (!get_block_hashing_blob(b, bd)) {
-      return false;
-    }
-  } else if (b.majorVersion >= BLOCK_MAJOR_VERSION_2) {
-    if (!get_parent_block_hashing_blob(b, bd)) {
-      return false;
-    }
-  } else {
+  if (!get_block_hashing_blob(b, bd)) {
     return false;
   }
 
   cn_slow_hash(context, bd.data(), bd.size(), res, b.majorVersion);
-  return true;
+return true;
 }
 
 std::vector<uint32_t> relative_output_offsets_to_absolute(const std::vector<uint32_t>& off) {
