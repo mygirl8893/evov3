@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IWalletLegacy.h"
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 
 namespace CryptoNote
 {

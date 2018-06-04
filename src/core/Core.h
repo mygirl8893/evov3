@@ -12,7 +12,7 @@
 #include "mine/MinerConfig.h"
 #include "ICore.h"
 #include "ICoreObserver.h"
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 
 #include "System/Dispatcher.h"
 #include "MessageQueue.h"
@@ -179,4 +179,5 @@ namespace CryptoNote {
      std::atomic<bool> m_starter_message_showed;
      Tools::ObserverManager<ICoreObserver> m_observerManager;
    };
+   const static boost::uuids::uuid CRYPTONOTE_NETWORK = { { 0x37, 0x50, 0x3A, 0x20, 0x13, 0xA5, 0x72, 0x5A, 0x3B, 0x70, 0x4E, 0x7C, 0x28, 0x5D, 0x63, 0x7E } };
 }

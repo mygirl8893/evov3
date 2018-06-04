@@ -7,7 +7,7 @@
 #include <memory>
 #include <mutex>
 
-#include "common/Varint.h"
+#include "Varint.h"
 #include "crypto.h"
 #include "hash.h"
 

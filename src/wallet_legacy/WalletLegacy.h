@@ -10,7 +10,7 @@
 #include "INode.h"
 #include "wallet/WalletErrors.h"
 #include "wallet/WalletAsyncContextCounter.h"
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 #include "core/trans/TransactionExtra.h"
 #include "base/CryptoNoteFormatUtils.h"
 #include "core/Currency.h"

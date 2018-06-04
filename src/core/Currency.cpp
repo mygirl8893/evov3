@@ -4,7 +4,7 @@
 #include <boost/math/special_functions/round.hpp>
 #include <boost/lexical_cast.hpp>
 #include "common/Base58.h"
-#include "common/int-util.h"
+#include "int-util.h"
 #include "common/StringTools.h"
 
 #include "Account.h"
@@ -79,7 +79,8 @@ bool Currency::init() {
   }
 
   if (isTestnet()) {
-    m_upgradeHeightv3 = 2;
+    m_upgradeHeightv2 = 9;
+    m_upgradeHeightv3 = static_cast<uint32_t>(-1);
     m_blocksFileName = "testnet_" + m_blocksFileName;
     m_blocksCacheFileName = "testnet_" + m_blocksCacheFileName;
     m_blockIndexesFileName = "testnet_" + m_blockIndexesFileName;
@@ -134,12 +135,22 @@ uint64_t Currency::baseRewardFunction(uint64_t alreadyGeneratedCoins, uint32_t h
   return base_reward;
 }
 
+uint32_t Currency::upgradeHeight(uint8_t majorVersion) const {
+ if (majorVersion == BLOCK_MAJOR_VERSION_1) {
+   return m_upgradeHeightv2;
+ }
+ else if (majorVersion == BLOCK_MAJOR_VERSION_2) {
+   return m_upgradeHeightv3;
+ }else {
+   return static_cast<uint32_t>(-1);
+ }
+}
+
 bool Currency::getBlockReward(size_t medianSize, size_t currentBlockSize, uint64_t alreadyGeneratedCoins,
   uint64_t fee, uint32_t height, uint64_t& reward, int64_t& emissionChange) const {
 
-  assert(alreadyGeneratedCoins <= m_moneySupply);
-  assert(m_emissionSpeedFactor > 0 && m_emissionSpeedFactor <= 8 * sizeof(uint64_t));
-  uint64_t baseReward = (m_moneySupply - alreadyGeneratedCoins) >> m_emissionSpeedFactor;
+   assert(alreadyGeneratedCoins <= m_moneySupply);
+  uint64_t baseReward = baseRewardFunction(alreadyGeneratedCoins, height);
 
   medianSize = std::max(medianSize, m_blockGrantedFullRewardZone);
   if (currentBlockSize > UINT64_C(2) * medianSize) {
@@ -352,7 +363,7 @@ bool Currency::constructMinerTx(uint32_t height, size_t medianSize, uint64_t alr
     return false;
   }
 
-  tx.version = TRANSACTION_VERSION_1;
+  tx.version = TRANSACTION_VERSION_2;
   // lock
   tx.unlockTime = height + m_minedMoneyUnlockWindow;
   tx.inputs.push_back(in);
@@ -510,11 +521,22 @@ bool Currency::parseAmount(const std::string& str, uint64_t& amount) const {
 
 difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, std::vector<uint64_t> timestamps,
   std::vector<difficulty_type> cumulativeDifficulties) const {
+    // LWMA difficulty algorithm
+    // Copyright (c) 2017-2018 Zawy
+    // MIT license http://www.opensource.org/licenses/mit-license.php.
+    // This is an improved version of Tom Harding's (Deger8) "WT-144"  
+    // Karbowanec, Masari, Bitcoin Gold, and Bitcoin Cash have contributed.
+    // See https://github.com/zawy12/difficulty-algorithms/issues/1 for other algos.
+    // Do not use "if solvetime < 0 then solvetime = 1" which allows a catastrophic exploit.
+    // T= target_solvetime;
+    // N = int(45 * (600 / T) ^ 0.3));
+ 
     const int64_t T = static_cast<int64_t>(m_difficultyTarget);
     size_t N = m_difficultyWindow;
+
 	// return a difficulty of 1 for first 3 blocks if it's the start of the chain
-	if (timestamps.size() < 10) {
-		return 1000;
+	if (timestamps.size() < 4) {
+		return 1;
 	}
 	// otherwise, use a smaller N if the start of the chain is less than N+1
 	else if (timestamps.size() < N + 1) {
@@ -551,7 +573,7 @@ difficulty_type Currency::nextDifficulty(uint8_t version, uint32_t blockIndex, s
 	nextDifficulty = harmonic_mean_D * T / LWMA;
 	next_difficulty = static_cast<uint64_t>(nextDifficulty);
 
-	//// minimum limit
+	// minimum limit
 	// in production set larger
 	if (!isTestnet() && next_difficulty < 1000) {
 		next_difficulty = 1000;
@@ -605,6 +627,7 @@ CurrencyBuilder::CurrencyBuilder(Logging::ILogger& log) : m_currency(log) {
 
   moneySupply(parameters::MONEY_SUPPLY);
   emissionSpeedFactor(parameters::EMISSION_SPEED_FACTOR);
+  cryptonoteCoinVersion(parameters::CRYPTONOTE_COIN_VERSION);
   //genesisBlockReward(parameters::GENESIS_BLOCK_REWARD);
 
   rewardBlocksWindow(parameters::CRYPTONOTE_REWARD_BLOCKS_WINDOW);

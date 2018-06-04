@@ -9,7 +9,7 @@
 #include "base/CryptoNoteFormatUtils.h"
 #include "base/CryptoNoteTools.h"
 #include "core/Currency.h"
-#include "core/VerificationContext.h"
+#include "VerificationContext.h"
 #include "p2p/LevinProtocol.h"
 
 using namespace Logging;
@@ -231,7 +231,11 @@ int CryptoNoteProtocolHandler::handle_notify_new_block(int command, NOTIFY_NEW_B
 
   for (auto tx_blob_it = arg.b.txs.begin(); tx_blob_it != arg.b.txs.end(); tx_blob_it++) {
     CryptoNote::tx_verification_context tvc = boost::value_initialized<decltype(tvc)>();
-    m_core.handle_incoming_tx(asBinaryArray(*tx_blob_it), tvc, true);
+    auto transactionBinary = asBinaryArray(*tx_blob_it);
+    Crypto::Hash transactionHash = Crypto::cn_fast_hash(transactionBinary.data(), transactionBinary.size());
+    logger(DEBUGGING) << "transaction " << transactionHash << " came in NOTIFY_NEW_BLOCK";
+
+    m_core.handle_incoming_tx(transactionBinary, tvc, true);
     if (tvc.m_verification_failed) {
       logger(Logging::INFO) << context << "Block verification failed: transaction verification failed, dropping connection";
       context.m_state = CryptoNoteConnectionContext::state_shutdown;
@@ -272,8 +276,11 @@ int CryptoNoteProtocolHandler::handle_notify_new_transactions(int command, NOTIF
     return 1;
 
   for (auto tx_blob_it = arg.txs.begin(); tx_blob_it != arg.txs.end();) {
+    auto transactionBinary = asBinaryArray(*tx_blob_it);
+    Crypto::Hash transactionHash = Crypto::cn_fast_hash(transactionBinary.data(), transactionBinary.size());
+    logger(DEBUGGING) << "transaction " << transactionHash << " came in NOTIFY_NEW_TRANSACTIONS";
     CryptoNote::tx_verification_context tvc = boost::value_initialized<decltype(tvc)>();
-    m_core.handle_incoming_tx(asBinaryArray(*tx_blob_it), tvc, false);
+    m_core.handle_incoming_tx(transactionBinary, tvc, false);
     if (tvc.m_verification_failed) {
       logger(Logging::INFO) << context << "Tx verification failed";
     }
@@ -399,8 +406,11 @@ int CryptoNoteProtocolHandler::processObjects(CryptoNoteConnectionContext& conte
 
     //process transactions
     for (auto& tx_blob : block_entry.txs) {
+      auto transactionBinary = asBinaryArray(tx_blob);
+      Crypto::Hash transactionHash = Crypto::cn_fast_hash(transactionBinary.data(), transactionBinary.size());
+      logger(DEBUGGING) << "transaction " << transactionHash << " came in processObjects";
       tx_verification_context tvc = boost::value_initialized<decltype(tvc)>();
-      m_core.handle_incoming_tx(asBinaryArray(tx_blob), tvc, true);
+      m_core.handle_incoming_tx(transactionBinary, tvc, true);
       if (tvc.m_verification_failed) {
         logger(Logging::ERROR) << context << "transaction verification failed on NOTIFY_RESPONSE_GET_OBJECTS, \r\ntx_id = "
           << Common::podToHex(getBinaryArrayHash(asBinaryArray(tx_blob))) << ", dropping connection";

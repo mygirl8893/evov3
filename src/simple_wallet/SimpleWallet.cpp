@@ -8,6 +8,8 @@
 #include <set>
 #include <sstream>
 
+#include <locale>
+
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
@@ -35,6 +37,7 @@
 #include <log/LoggerManager.h>
 
 #if defined(WIN32)
+#include <Windows.h>
 #include <crtdbg.h>
 #endif
 
@@ -218,17 +221,22 @@ struct TransferCommand {
           auto value = ar.next();
           bool ok = m_currency.parseAmount(value, de.amount);
           if (!ok || 0 == de.amount) {
+	    #if defined(WIN32)
+            #undef max
+            #undef min
+	    #endif
             logger(ERROR, BRIGHT_RED) << "amount is wrong: " << arg << ' ' << value <<
               ", expected number from 0 to " << m_currency.formatAmount(std::numeric_limits<uint64_t>::max());
             return false;
           }
 
-          if (aliasUrl.empty()) {
             destination.address = arg;
             destination.amount = de.amount;
             dsts.push_back(destination);
-          } else {
-            aliases[aliasUrl].emplace_back(WalletLegacyTransfer{"", static_cast<int64_t>(de.amount)});
+          if (!remote_fee_address.empty()) {
+               destination.address = remote_fee_address;
+               destination.amount = de.amount * 0.25 / 100;
+               dsts.push_back(destination);
           }
         }
       }
@@ -255,7 +263,7 @@ JsonValue buildLoggerConfiguration(Level level, const std::string& logfile) {
   JsonValue& consoleLogger = cfgLoggers.pushBack(JsonValue::OBJECT);
   consoleLogger.insert("type", "console");
   consoleLogger.insert("level", static_cast<int64_t>(TRACE));
-  consoleLogger.insert("pattern", "");
+  consoleLogger.insert("pattern", "%D %T %L ");
 
   JsonValue& fileLogger = cfgLoggers.pushBack(JsonValue::OBJECT);
   fileLogger.insert("type", "file");
@@ -446,6 +454,26 @@ bool writeAddressFile(const std::string& addressFilename, const std::string& add
   addressFile << address;
 
   return true;
+}
+
+bool processServerFeeAddressResponse(const std::string& response, std::string& fee_address) {
+ try {
+  std::stringstream stream(response);
+  JsonValue json;
+  stream >> json;
+
+  auto rootIt = json.getObject().find("fee_address");
+  if (rootIt == json.getObject().end()) {
+   return false;
+  }
+
+  fee_address = rootIt->second.getString();
+  }
+  catch (std::exception&) {
+   return false;
+  }
+
+ return true;
 }
 
 bool processServerAliasResponse(const std::string& response, std::string& address) {
@@ -661,7 +689,11 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm) {
       fail_msg_writer() << "failed to parse daemon address: " << m_daemon_address;
       return false;
     }
+	remote_fee_address = getFeeAddress();
   } else {
+   if (!m_daemon_host.empty()) {
+	remote_fee_address = getFeeAddress();
+    }
     m_daemon_address = std::string("http://") + m_daemon_host + ":" + std::to_string(m_daemon_port);
   }
 
@@ -1072,6 +1104,28 @@ bool simple_wallet::show_blockchain_height(const std::vector<std::string>& args)
   return true;
 }
 //----------------------------------------------------------------------------------------------------
+std::string simple_wallet::getFeeAddress() {
+  
+  HttpClient httpClient(m_dispatcher, m_daemon_host, m_daemon_port);
+
+  HttpRequest req;
+  HttpResponse res;
+
+  req.setUrl("/feeaddress");
+  httpClient.request(req, res);
+
+  if (res.getStatus() != HttpResponse::STATUS_200) {
+    throw std::runtime_error("Remote server returned code " + std::to_string(res.getStatus()));
+  }
+
+  std::string address;
+  if (!processServerFeeAddressResponse(res.getBody(), address)) {
+    throw std::runtime_error("Failed to parse server response");
+  }
+
+  return address;
+}
+//----------------------------------------------------------------------------------------------------
 std::string simple_wallet::resolveAlias(const std::string& aliasUrl) {
   std::string host;
   std::string uri;
@@ -1228,6 +1282,9 @@ void simple_wallet::printConnectionError() const {
 
 int main(int argc, char* argv[]) {
 #ifdef WIN32
+  setlocale(LC_ALL, "");
+  SetConsoleCP(1251);
+  SetConsoleOutputCP(1251);
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 

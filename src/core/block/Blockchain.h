@@ -5,10 +5,10 @@
 #include "google/sparse_hash_set"
 #include "google/sparse_hash_map"
 
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 #include "common/Util.h"
 #include "BlockIndex.h"
-#include "core/Checkpoints.h"
+#include "Checkpoints.h"
 #include "core/Currency.h"
 #include "core/DepositIndex.h"
 #include "IBlockchainStorageObserver.h"
@@ -21,7 +21,7 @@
 
 #include "core/MessageQueue.h"
 #include "BlockchainMessages.h"
-#include "core/IntrusiveLinkedList.h"
+#include "IntrusiveLinkedList.h"
 
 #include <log/LoggerRef.h>
 
@@ -75,7 +75,8 @@ namespace CryptoNote {
     difficulty_type getDifficultyForNextBlock();
     uint64_t getBlockTimestamp(uint32_t height);
     uint64_t getCoinsInCirculation();
-    uint8_t get_block_major_version_for_height(uint64_t height) const;
+    uint8_t getBlockMajorVersionForHeight(uint32_t height) const;
+    uint8_t blockMajorVersion;
     bool addNewBlock(const Block& bl_, block_verification_context& bvc);
     bool resetAndSetGenesisBlock(const Block& b);
     bool haveBlock(const Crypto::Hash& id);
@@ -252,8 +253,8 @@ namespace CryptoNote {
     CryptoNote::DepositIndex m_depositIndex;
     TransactionMap m_transactionMap;
     MultisignatureOutputsContainer m_multisignatureOutputs;
-    UpgradeDetector m_upgradeDetectorV2;
-    UpgradeDetector m_upgradeDetectorV3;
+    UpgradeDetector m_upgradeDetectorv2;
+    UpgradeDetector m_upgradeDetectorv3;
 
     PaymentIdIndex m_paymentIdIndex;
     TimestampBlocksIndex m_timestampIndex;
@@ -296,11 +297,15 @@ namespace CryptoNote {
     bool pushBlock(const Block& blockData, block_verification_context& bvc, uint32_t height);
     bool pushBlock(const Block& blockData, const std::vector<Transaction>& transactions, block_verification_context& bvc);
     bool pushBlock(BlockEntry& block);
-    void popBlock(const Crypto::Hash& blockHash);
+    void popBlock();
     bool pushTransaction(BlockEntry& block, const Crypto::Hash& transactionHash, TransactionIndex transactionIndex);
     void popTransaction(const Transaction& transaction, const Crypto::Hash& transactionHash);
     void popTransactions(const BlockEntry& block, const Crypto::Hash& minerTransactionHash);
     bool validateInput(const MultisignatureInput& input, const Crypto::Hash& transactionHash, const Crypto::Hash& transactionPrefixHash, const std::vector<Crypto::Signature>& transactionSignatures);
+    bool checkCheckpoints(uint32_t& lastValidCheckpointHeight);
+    void rollbackBlockchainTo(uint32_t height);
+    void removeLastBlock();
+    bool checkUpgradeHeight(const UpgradeDetector& upgradeDetector);
 
     bool storeBlockchainIndices();
     bool loadBlockchainIndices();
@@ -372,4 +377,5 @@ namespace CryptoNote {
     return true;
   }
 }
+
 

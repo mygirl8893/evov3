@@ -8,9 +8,9 @@
 #include "common/SignalHandler.h"
 #include "common/PathTools.h"
 #include "crypto/hash.h"
+#include "base/CryptoNoteTools.h"
 #include "core/Core.h"
 #include "core/CoreConfig.h"
-#include "base/CryptoNoteTools.h"
 #include "core/Currency.h"
 #include "core/mine/MinerConfig.h"
 #include "protocol/CryptoNoteProtocolHandler.h"
@@ -20,7 +20,6 @@
 #include "rpc/RpcServerConfig.h"
 #include "version.h"
 
-#include "log/ConsoleLogger.h"
 #include <log/LoggerManager.h>
 
 #if defined(WIN32)
@@ -40,24 +39,24 @@ namespace
   const command_line::arg_descriptor<std::string> arg_log_file    = {"log-file", "", ""};
   const command_line::arg_descriptor<int>         arg_log_level   = {"log-level", "", 2}; // info level
   const command_line::arg_descriptor<bool>        arg_console     = {"no-console", "Disable daemon console commands"};
+  const command_line::arg_descriptor<bool>        arg_restricted_rpc = {"restricted-rpc", "Restrict RPC to view only commands to prevent abuse"};
+  const command_line::arg_descriptor<bool>        arg_enable_blockchain_indexes = { "enable-blockchain-indexes", "Enable blockchain indexes", false };
+  const command_line::arg_descriptor<bool>        arg_print_genesis_tx = { "print-genesis-tx", "Prints genesis' block tx hex to insert it to config and exits" };
+  const command_line::arg_descriptor<std::string> arg_enable_cors = { "enable-cors", "Adds header 'Access-Control-Allow-Origin' to the daemon's RPC responses. Uses the value as domain. Use * for all", "" };
+  const command_line::arg_descriptor<std::string> arg_set_fee_address = { "fee-address", "Sets fee address for light wallets to the daemon's RPC responses.", "" };
   const command_line::arg_descriptor<bool>        arg_testnet_on  = {"testnet", "Used to deploy test nets. Checkpoints and hardcoded seeds are ignored, "
     "network id is changed. Use it with --data-dir flag. The wallet must be launched with --testnet flag.", false};
-  const command_line::arg_descriptor<bool>        arg_print_genesis_tx = { "print-genesis-tx", "Prints genesis' block tx hex to insert it to config and exits" };
   //const command_line::arg_descriptor<std::vector<std::string>> arg_genesis_block_reward_address = {"genesis-block-reward-address", ""};
 }
 
 bool command_line_preprocessor(const boost::program_options::variables_map& vm, LoggerRef& logger);
 
-void print_genesis_tx_hex() {
-  Logging::ConsoleLogger logger;
-  CryptoNote::Transaction tx = CryptoNote::CurrencyBuilder(logger).generateGenesisTransaction();
-  CryptoNote::BinaryArray txb = CryptoNote::toBinaryArray(tx);
-  std::string tx_hex = Common::toHex(txb);
-
-  std::cout << "Insert this line into your coin configuration file as is: " << std::endl;
-  std::cout << "const char GENESIS_COINBASE_TX_HEX[] = \"" << tx_hex << "\";" << std::endl;
-
-  return;
+void print_genesis_tx_hex(const po::variables_map& vm, LoggerManager& logManager) {
+  CryptoNote::Transaction tx = CryptoNote::CurrencyBuilder(logManager).generateGenesisTransaction();
+  std::string tx_hex = Common::toHex(CryptoNote::toBinaryArray(tx));
+  std::cout << "Add this line into your coin configuration file as is: " << std::endl;
+  std::cout << "\"GENESIS_COINBASE_TX_HEX\":\"" << tx_hex << "\"," << std::endl;
+   return;
 }
 
 // void print_genesis_tx_hex(const po::variables_map& vm) {
@@ -117,7 +116,7 @@ JsonValue buildLoggerConfiguration(Level level, const std::string& logfile) {
   JsonValue& consoleLogger = cfgLoggers.pushBack(JsonValue::OBJECT);
   consoleLogger.insert("type", "console");
   consoleLogger.insert("level", static_cast<int64_t>(TRACE));
-  consoleLogger.insert("pattern", "%T %L ");
+  consoleLogger.insert("pattern", "%D %T %L ");
 
   return loggerConfiguration;
 }
@@ -167,7 +166,11 @@ int main(int argc, char* argv[])
     command_line::add_arg(desc_cmd_sett, arg_log_file);
     command_line::add_arg(desc_cmd_sett, arg_log_level);
     command_line::add_arg(desc_cmd_sett, arg_console);
+    command_line::add_arg(desc_cmd_sett, arg_restricted_rpc);
     command_line::add_arg(desc_cmd_sett, arg_testnet_on);
+    command_line::add_arg(desc_cmd_sett, arg_enable_cors);
+    command_line::add_arg(desc_cmd_sett, arg_set_fee_address);
+    command_line::add_arg(desc_cmd_sett, arg_enable_blockchain_indexes);
     command_line::add_arg(desc_cmd_sett, arg_print_genesis_tx);
     //command_line::add_arg(desc_cmd_sett, arg_genesis_block_reward_address);
 
@@ -191,12 +194,6 @@ int main(int argc, char* argv[])
         return false;
       }
 
-      if (command_line::get_arg(vm, arg_print_genesis_tx)) {
-        //print_genesis_tx_hex(vm);
-		    print_genesis_tx_hex();
-        return false;
-      }
-
       std::string data_dir = command_line::get_arg(vm, command_line::arg_data_dir);
       std::string config = command_line::get_arg(vm, arg_config_file);
 
@@ -212,6 +209,10 @@ int main(int argc, char* argv[])
       }
 
       po::notify(vm);
+      if (command_line::get_arg(vm, arg_print_genesis_tx)) {
+        print_genesis_tx_hex(vm, logManager);
+        return false;
+      }
       return true;
     });
 
@@ -260,7 +261,7 @@ int main(int argc, char* argv[])
     }
 
     CryptoNote::Currency currency = currencyBuilder.currency();
-    CryptoNote::core ccore(currency, nullptr, logManager, false);
+    CryptoNote::core ccore(currency, nullptr, logManager, command_line::get_arg(vm, arg_enable_blockchain_indexes));
 
     CryptoNote::Checkpoints checkpoints(logManager);
     for (const auto& cp : CryptoNote::CHECKPOINTS) {
@@ -333,6 +334,9 @@ int main(int argc, char* argv[])
 
     logger(INFO) << "Starting core rpc server on address " << rpcConfig.getBindAddress();
     rpcServer.start(rpcConfig.bindIp, rpcConfig.bindPort);
+    rpcServer.restrictRPC(command_line::get_arg(vm, arg_restricted_rpc));
+    rpcServer.enableCors(command_line::get_arg(vm, arg_enable_cors));
+    rpcServer.setFeeAddress(command_line::get_arg(vm, arg_set_fee_address));
     logger(INFO) << "Core rpc server started ok";
 
     Tools::SignalHandler::install([&dch, &p2psrv] {

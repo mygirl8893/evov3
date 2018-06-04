@@ -15,7 +15,7 @@
 #include "ITransaction.h"
 
 #include "common/ScopeExit.h"
-#include "common/ShuffleGenerator.h"
+#include "ShuffleGenerator.h"
 #include "common/StdInputStream.h"
 #include "common/StdOutputStream.h"
 #include "common/StringTools.h"

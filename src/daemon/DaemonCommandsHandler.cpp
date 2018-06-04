@@ -252,7 +252,10 @@ bool DaemonCommandsHandler::print_stat(const std::vector<std::string>& args) {
     " (" << currency.formatAmount(calculatePercent(currency, totalCoinsOnDeposits, totalCoinsInNetwork)) << "%)" << std::endl;
   std::cout << "Amount of active coins:  " << currency.formatAmount(amountOfActiveCoins) <<
     " (" << currency.formatAmount(calculatePercent(currency, amountOfActiveCoins, totalCoinsInNetwork)) << "%)" << std::endl;
-  std::cout << "Total interest paid: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+  std::cout << "Total Minting paid: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+  std::cout << "Block Parent: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+  std::cout << "Child Block: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
+  std::cout << "Ring Signature key: " << currency.formatAmount(m_core.depositInterestAtHeight(height)) << std::endl;
 
   return true;
 }

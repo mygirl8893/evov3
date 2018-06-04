@@ -2,7 +2,7 @@
 
 #include <atomic>
 
-#include <common/ObserverManager.h>
+#include <ObserverManager.h>
 
 #include "ICore.h"
 

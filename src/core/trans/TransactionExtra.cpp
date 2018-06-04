@@ -1,10 +1,10 @@
 #include "TransactionExtra.h"
 
-#include "common/int-util.h"
+#include "int-util.h"
 #include "common/MemoryInputStream.h"
 #include "common/StreamTools.h"
 #include "common/StringTools.h"
-#include "common/Varint.h"
+#include "Varint.h"
 #include "base/CryptoNoteTools.h"
 #include "Serialization/BinaryOutputStreamSerializer.h"
 #include "Serialization/BinaryInputStreamSerializer.h"

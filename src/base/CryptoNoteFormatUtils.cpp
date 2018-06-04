@@ -2,8 +2,8 @@
 
 #include <set>
 #include <log/LoggerRef.h>
-#include <common/int-util.h>
-#include <common/Varint.h>
+#include <int-util.h>
+#include <Varint.h>
 
 #include "Serialization/BinaryOutputStreamSerializer.h"
 #include "Serialization/BinaryInputStreamSerializer.h"
@@ -449,10 +449,24 @@ bool get_block_hashing_blob(const Block& b, BinaryArray& ba) {
   return true;
 }
 
+bool get_parent_block_hashing_blob(const Block& b, BinaryArray& blob) {
+  auto serializer = makeParentBlockSerializer(b, true, true);
+  return toBinaryArray(serializer, blob);
+}
+
 bool get_block_hash(const Block& b, Hash& res) {
   BinaryArray ba;
   if (!get_block_hashing_blob(b, ba)) {
     return false;
+  }
+
+  if (BLOCK_MAJOR_VERSION_2 <= b.majorVersion) {
+    BinaryArray parent_blob;
+    auto serializer = makeParentBlockSerializer(b, true, false);
+    if (!toBinaryArray(serializer, parent_blob))
+      return false;
+
+    ba.insert(ba.end(), parent_blob.begin(), parent_blob.end());
   }
 
   return getObjectHash(ba, res);
@@ -480,7 +494,7 @@ bool get_block_longhash(cn_context &context, const Block& b, Hash& res) {
   }
 
   cn_slow_hash(context, bd.data(), bd.size(), res, b.majorVersion);
-  return true;
+return true;
 }
 
 std::vector<uint32_t> relative_output_offsets_to_absolute(const std::vector<uint32_t>& off) {

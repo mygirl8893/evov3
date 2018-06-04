@@ -5,7 +5,7 @@
 
 #include "common/Base58.h"
 #include "crypto/hash.h"
-#include "common/int-util.h"
+#include "int-util.h"
 
 using namespace Crypto;
 using namespace Common;

@@ -13,8 +13,8 @@
 #include <boost/multi_index/member.hpp>
 
 #include "common/Util.h"
-#include "common/int-util.h"
-#include "common/ObserverManager.h"
+#include "int-util.h"
+#include "ObserverManager.h"
 #include "crypto/hash.h"
 
 #include "base/CryptoNoteBasic.h"
@@ -23,7 +23,7 @@
 #include "seria/ITimeProvider.h"
 #include "ITransactionValidator.h"
 #include "ITxPoolObserver.h"
-#include "core/VerificationContext.h"
+#include "VerificationContext.h"
 #include "core/block/BlockchainIndices.h"
 
 #include <log/LoggerRef.h>

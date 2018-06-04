@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "common/int-util.h"
+#include "int-util.h"
 #include "crypto/hash.h"
 #include "CryptoNoteConfig.h"
 #include "core/Difficulty.h"

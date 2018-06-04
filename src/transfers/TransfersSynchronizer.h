@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/ObserverManager.h"
+#include "ObserverManager.h"
 #include "ITransfersSynchronizer.h"
 #include "IBlockchainSynchronizer.h"
 #include "TypeHelpers.h"

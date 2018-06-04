@@ -13,8 +13,7 @@
 class PaymentGateService {
 public:
 
-  PaymentGateService() : dispatcher(nullptr), stopEvent(nullptr), config(), service(nullptr), logger(), currencyBuilder(logger) {
-  }
+  PaymentGateService();
 
   bool init(int argc, char** argv);
 

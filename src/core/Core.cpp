@@ -334,7 +334,7 @@ bool core::get_block_template(Block& b, const AccountPublicAddress& adr, difficu
     }
 
     b = boost::value_initialized<Block>();
-    b.majorVersion = m_blockchain.get_block_major_version_for_height(height);
+    b.majorVersion = m_blockchain.getBlockMajorVersionForHeight(height);
 
     if (BLOCK_MAJOR_VERSION_1 == b.majorVersion) {
       b.minorVersion = BLOCK_MINOR_VERSION_1;

@@ -70,9 +70,9 @@ public:
   virtual void stop() override;
   virtual WalletEvent getEvent() override;
 
-  virtual size_t createFusionTransaction(uint64_t threshold, uint64_t mixin) override;
+  virtual size_t createFusionTransaction(uint64_t threshold, uint64_t mixin);
   virtual bool isFusionTransaction(size_t transactionId) const override;
-  virtual IFusionManager::EstimateResult estimate(uint64_t threshold) const override;
+  virtual IFusionManager::EstimateResult estimate(uint64_t threshold) const;
 
 protected:
   void throwIfNotInitialized() const;
