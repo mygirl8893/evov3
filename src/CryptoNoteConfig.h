@@ -101,8 +101,8 @@ const uint64_t ICO_BLOCK_REWARD	                             = (UINT64_C(50) * p
 const uint64_t MAX_BLOCK_REWARD                              = (UINT64_C(10) * parameters::COIN);
 const uint64_t REWARD_INCREASE_INTERVAL                      = (UINT64_C(264000));
 
-const char     CRYPTONOTE_NAME[]                             = "Photon Coin";
-const char     GENESIS_COINBASE_TX_HEX[]                     = "020a01ff0001c0843d029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121011e3edbb016037ac7027a35ef008b93f0a1566606b2a7059aa9786a439fc36dc5";
+const char     CRYPTONOTE_NAME[]                             = "Cryptonote";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "";
 
 const uint32_t GENESIS_NONCE                                 = 70;
 const uint64_t GENESIS_TIMESTAMP                             = 1528086815;
@@ -120,8 +120,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        = 10000; // by defa
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            = 128; // by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         = 1000;
 
-const int      P2P_DEFAULT_PORT                              = 20317;
-const int      RPC_DEFAULT_PORT                              = 20417;
+const int      P2P_DEFAULT_PORT                              = 60050;
+const int      RPC_DEFAULT_PORT                              = 60050;
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                = 1000;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 = 5000;
@@ -139,7 +139,7 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 second
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "F29507CA78955F37A3B783EE2C5123B8B6A34A0C5CAAE050922C62541614G090";
 
 const std::initializer_list<const char*> SEED_NODES = {
-  "172.31.25.127:20317", "172.31.16.203:20317",
+  "0.0.0.0:60050",
 };
 
 struct CheckpointData {
