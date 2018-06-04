@@ -1,6 +1,10 @@
 # CryptonoteEvoV3-CLI[Beta]
 Version 3 of CryptonoteEvo. Codename : Lamda Driver
 
+# Requirement
+
+'apt install build-essential'
+
 # Installation guide
 
 1. fork this and do clone from yours
@@ -8,6 +12,9 @@ Version 3 of CryptonoteEvo. Codename : Lamda Driver
 
 'git submodule init'
 'git submodule update --remote'
+
+Cmake upgrade
+'cd modules/cmake && ./bootstrap && make && make install'
 
 3. try change setting on src/CryptonoteConfig.h and src/Cmakelist.txt
 4. save all
