@@ -11,6 +11,8 @@
 #include <atomic>
 #include <future>
 
+#include "log/LoggerRef.h"
+
 namespace CryptoNote {
 
 class BlockchainSynchronizer :
@@ -18,8 +20,8 @@ class BlockchainSynchronizer :
   public INodeObserver {
 public:
 
-  BlockchainSynchronizer(INode& node, const Crypto::Hash& genesisBlockHash);
-  ~BlockchainSynchronizer();
+  BlockchainSynchronizer(INode& node, Logging::ILogger& logger, const Crypto::Hash& genesisBlockHash);
+   ~BlockchainSynchronizer();
 
   // IBlockchainSynchronizer
   virtual void addConsumer(IBlockchainConsumer* consumer) override;
@@ -109,6 +111,7 @@ private:
 
   typedef std::map<IBlockchainConsumer*, std::shared_ptr<SynchronizationState>> ConsumersMap;
 
+  mutable Logging::LoggerRef m_logger;
   ConsumersMap m_consumers;
   INode& m_node;
   const Crypto::Hash m_genesisBlockHash;
