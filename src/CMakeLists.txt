@@ -17,7 +17,7 @@ file(GLOB_RECURSE p2p p2p/*)
 file(GLOB_RECURSE rpc rpc/*)
 file(GLOB_RECURSE Serialization Serialization/*)
 file(GLOB_RECURSE simple_wallet simple_wallet/*)
-file(GLOB_RECURSE Mnemonics Mnemonics/*)
+file(GLOB_RECURSE Mnemonics mnemonics/*)
 
 if(MSVC)
 file(GLOB_RECURSE System System/* Platform/Windows/System/*)
