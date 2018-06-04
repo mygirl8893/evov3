@@ -50,8 +50,8 @@
 #include <boost/crc.hpp>
 #include <boost/filesystem.hpp>
 #include "crypto/crypto.h"  // for declaration of Crypto::SecretKey
-#include "common/Lazy.h"
-#include "Mnemonics/electrum-words.h"
+#include "Common/Lazy.h"
+#include "mnemonics/electrum-words.h"
 
 #include "chinese_simplified.h"
 #include "english.h"
