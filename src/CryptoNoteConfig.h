@@ -11,14 +11,14 @@ const uint64_t DIFFICULTY_TARGET                             = 120; // seconds
 const uint64_t CRYPTONOTE_MAX_BLOCK_NUMBER                   = 600000000;
 const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 600000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
-const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 0x60d4; // addresses start with "CA"
+const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 0x6d91; // addresses start with "RP"
 const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 10;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = DIFFICULTY_TARGET * 3;
 const uint64_t CRYPTONOTE_DEFAULT_TX_SPENDABLE_AGE           = 10;
 
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 11;
 
-const uint64_t MONEY_SUPPLY                                  = UINT64_C(500);
+const uint64_t MONEY_SUPPLY                                  = UINT64_C(250000000);
 
 //LWMA
 const size_t   MIN_MIXIN                          	     = 0;
@@ -42,7 +42,7 @@ const uint64_t POINT                                         = UINT64_C(1000); /
 const uint64_t COIN                                          = UINT64_C(100000000); // pow(10, 6)
 const uint64_t MINIMUM_FEE                                   = UINT64_C(10000); // pow(10, 4)
 const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(10000); // pow(10, 4)
-const unsigned EMISSION_SPEED_FACTOR 			     		 = 18;
+const unsigned EMISSION_SPEED_FACTOR 			     		 = 20;
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
 
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
@@ -101,10 +101,11 @@ const uint64_t ICO_BLOCK_REWARD	                             = (UINT64_C(50) * p
 const uint64_t MAX_BLOCK_REWARD                              = (UINT64_C(10) * parameters::COIN);
 const uint64_t REWARD_INCREASE_INTERVAL                      = (UINT64_C(264000));
 
-const char     CRYPTONOTE_NAME[]                             = "cryptonote";
-const char     GENESIS_COINBASE_TX_HEX[]                     = "020a01ff0001f403029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101a1ab74d61a8478556b01b62a80af3945e6e04c8e31f5f7ba9e77c5ab59316c66";
+const char     CRYPTONOTE_NAME[]                             = "Photon Coin";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "020a01ff0001c0843d029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd08807121011e3edbb016037ac7027a35ef008b93f0a1566606b2a7059aa9786a439fc36dc5";
+
 const uint32_t GENESIS_NONCE                                 = 70;
-const uint64_t GENESIS_TIMESTAMP                             = 1526949013;
+const uint64_t GENESIS_TIMESTAMP                             = 1528086815;
 
 const uint8_t  TRANSACTION_VERSION_1                         = 1;
 const uint8_t  TRANSACTION_VERSION_2                         = 2;
@@ -119,8 +120,8 @@ const size_t   BLOCKS_IDS_SYNCHRONIZING_DEFAULT_COUNT        = 10000; // by defa
 const size_t   BLOCKS_SYNCHRONIZING_DEFAULT_COUNT            = 128; // by default, blocks count in blocks downloading
 const size_t   COMMAND_RPC_GET_BLOCKS_FAST_MAX_COUNT         = 1000;
 
-const int      P2P_DEFAULT_PORT                              = 60045;
-const int      RPC_DEFAULT_PORT                              = 60046;
+const int      P2P_DEFAULT_PORT                              = 20317;
+const int      RPC_DEFAULT_PORT                              = 20417;
 
 const size_t   P2P_LOCAL_WHITE_PEERLIST_LIMIT                = 1000;
 const size_t   P2P_LOCAL_GRAY_PEERLIST_LIMIT                 = 5000;
@@ -138,7 +139,7 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 second
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "F29507CA78955F37A3B783EE2C5123B8B6A34A0C5CAAE050922C62541614G090";
 
 const std::initializer_list<const char*> SEED_NODES = {
-  "0.0.0.0:60045",
+  "13.58.66.140:20317", "18.220.53.57:20317",
 };
 
 struct CheckpointData {
