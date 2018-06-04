@@ -13,7 +13,7 @@
 #include "p2p/NetNode.h"
 #include "payment_gate/WalletFactory.h"
 #include <System/Context.h>
-#include "Wallet/WalletGreen.h"
+#include "wallet/WalletGreen.h"
 
 #ifdef ERROR
 #undef ERROR
