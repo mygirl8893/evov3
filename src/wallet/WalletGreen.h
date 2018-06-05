@@ -26,7 +26,7 @@ public:
   WalletGreen(System::Dispatcher& dispatcher, const Currency& currency, INode& node, Logging::ILogger& logger, uint32_t transactionSoftLockTime = 1);
   virtual ~WalletGreen();
 
-  virtual void initialize(const std::string& path, const std::string& password) override;
+  virtual void initialize(const std::string& path, const std::string& password);
   virtual void initializeWithViewKey(const Crypto::SecretKey& viewSecretKey, const std::string& password) override;
   virtual void load(std::istream& source, const std::string& password) override;
   virtual void shutdown() override;
