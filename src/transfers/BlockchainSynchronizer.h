@@ -75,7 +75,8 @@ private:
     idle = 0,           //DO
     poolSync = 1,       //NOT
     blockchainSync = 2, //REORDER
-    stopped = 3         //!!!
+    deleteOldTxs = 3,   //!!!
+    stopped = 4         //!!!
   };
 
   enum class UpdateConsumersResult {
@@ -85,6 +86,7 @@ private:
   };
 
   //void startSync();
+  void removeOutdatedTransactions();
   void startPoolSync();
   void startBlockchainSync();
 

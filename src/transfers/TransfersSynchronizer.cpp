@@ -3,6 +3,7 @@
 
 #include "common/StdInputStream.h"
 #include "common/StdOutputStream.h"
+#include "base/CryptoNoteBasicImpl.h"
 #include "Serialization/BinaryInputStreamSerializer.h"
 #include "Serialization/BinaryOutputStreamSerializer.h"
 
@@ -35,7 +36,7 @@ ITransfersSubscription& TransfersSyncronizer::addSubscription(const AccountSubsc
 
   if (it == m_consumers.end()) {
     std::unique_ptr<TransfersConsumer> consumer(
-      new TransfersConsumer(m_currency, m_node, acc.keys.viewSecretKey));
+      new TransfersConsumer(m_currency, m_node, m_logger.getLogger(), acc.keys.viewSecretKey));
 
     m_sync.addConsumer(consumer.get());
     consumer->addObserver(this);
@@ -262,15 +263,19 @@ void TransfersSyncronizer::load(std::istream& is) {
             auto prevState = getObjectState(sub->getContainer());
             setObjectState(sub->getContainer(), state);
             updatedStates.back().subscriptionStates.push_back(std::make_pair(acc, prevState));
+	} else {
+            m_logger(Logging::DEBUGGING) << "Subscription not found: " << m_currency.accountAddressAsString(acc);
           }
 
           s.endObject();
         }
         s.endArray();
+      } else {
+        m_logger(Logging::DEBUGGING) << "Consumer not found: " << viewKey;
       }
+     s.endObject();
     }
 
-    s.endObject();
     s.endArray();
 
   } catch (...) {
