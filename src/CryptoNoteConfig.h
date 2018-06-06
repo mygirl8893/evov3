@@ -36,7 +36,7 @@ const uint64_t POINT                                         = UINT64_C(1000); /
 const uint64_t COIN                                          = UINT64_C(100000000); // pow(10, 6)
 const uint64_t MINIMUM_FEE                                   = UINT64_C(10000); // pow(10, 4)
 const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(10000); // pow(10, 4)
-const unsigned EMISSION_SPEED_FACTOR 			     = 20;
+const unsigned EMISSION_SPEED_FACTOR 			     = 16;
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
 
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
@@ -95,8 +95,8 @@ const uint64_t ICO_BLOCK_REWARD	                             = (UINT64_C(50) * p
 const uint64_t MAX_BLOCK_REWARD                              = (UINT64_C(10) * parameters::COIN);
 const uint64_t REWARD_INCREASE_INTERVAL                      = (UINT64_C(264000));
 
-const char     CRYPTONOTE_NAME[]                             = "Photon Coin";
-const char     GENESIS_COINBASE_TX_HEX[]                     = "010a01ff0001c0843d029b2e4c0281c0b02e7c53291a94d1d0cbff8883f8024f5142ee494ffbbd0880712101a0cc4df329989b12b9f6c64b9a30faabd3a56ec5b1c89e3a8117340157212547";
+const char     CRYPTONOTE_NAME[]                             = "ecoin";
+const char     GENESIS_COINBASE_TX_HEX[]                     = "";
 
 const uint32_t GENESIS_NONCE                                 = 70;
 const uint64_t GENESIS_TIMESTAMP                             = 1528086815;
@@ -131,7 +131,7 @@ const size_t   P2P_DEFAULT_HANDSHAKE_INVOKE_TIMEOUT          = 5000; // 5 second
 const char     P2P_STAT_TRUSTED_PUB_KEY[]                    = "F29507CA78955F37A3B783EE2C5123B8B6A34A0C5CAAE050922C62541614G090";
 
 const std::initializer_list<const char*> SEED_NODES = {
-  "ec2-18-219-51-252.us-east-2.compute.amazonaws.com:7080", "ec2-13-58-224-8.us-east-2.compute.amazonaws.com:7080",
+  ":7080", ":7080",
 };
 
 struct CheckpointData {
