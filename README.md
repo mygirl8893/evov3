@@ -3,7 +3,7 @@ Version 3 of CryptonoteEvo. Codename : Lamda Driver
 
 # Requirement
 
-'apt install build-essential'
+'apt install build-essential git libboost1.58-all-dev'
 
 # Installation guide
 
